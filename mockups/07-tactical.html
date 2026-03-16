@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mockup 07 — Tactical HUD</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #0a110a;
+    color: #88aa88;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    position: relative;
+}
+/* subtle crosshatch bg */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+        repeating-linear-gradient(0deg, rgba(0,40,0,0.03) 0px, transparent 1px, transparent 20px),
+        repeating-linear-gradient(90deg, rgba(0,40,0,0.03) 0px, transparent 1px, transparent 20px);
+    pointer-events: none;
+}
+/* corner brackets on the whole page */
+.corner { position: absolute; width: 30px; height: 30px; z-index: 50; }
+.corner.tl { top: 8px; left: 8px; border-top: 2px solid #4a6a4a; border-left: 2px solid #4a6a4a; }
+.corner.tr { top: 8px; right: 8px; border-top: 2px solid #4a6a4a; border-right: 2px solid #4a6a4a; }
+.corner.bl { bottom: 8px; left: 8px; border-bottom: 2px solid #4a6a4a; border-left: 2px solid #4a6a4a; }
+.corner.br { bottom: 8px; right: 8px; border-bottom: 2px solid #4a6a4a; border-right: 2px solid #4a6a4a; }
+
+/* OD green palette */
+.green { color: #66ff66; }
+.bright { color: #aaffaa; }
+.dim { color: #3a5a3a; }
+.amber { color: #ccaa44; }
+.red { color: #cc4444; }
+.white { color: #aaaaaa; }
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 12px 30px 8px;
+    border-bottom: 1px solid #2a3a2a;
+}
+.header .left { }
+.header .title {
+    font-size: 16px;
+    color: #66ff66;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+}
+.header .coords {
+    font-size: 10px;
+    color: #3a5a3a;
+    letter-spacing: 2px;
+    margin-top: 2px;
+}
+.header .center {
+    text-align: center;
+}
+.header .classification {
+    font-size: 9px;
+    color: #ccaa44;
+    letter-spacing: 4px;
+    border: 1px solid #ccaa4440;
+    padding: 1px 10px;
+}
+.header .right { text-align: right; }
+.header .clock {
+    font-size: 32px;
+    color: #66ff66;
+    letter-spacing: 3px;
+}
+.header .date { font-size: 11px; color: #4a6a4a; }
+.header .zulu { font-size: 10px; color: #3a5a3a; }
+
+/* 3 column layout */
+.main {
+    display: grid;
+    grid-template-columns: 520px 1fr 520px;
+    grid-template-rows: 1fr auto;
+    height: calc(100% - 55px - 26px);
+}
+
+.panel {
+    padding: 10px 14px;
+    border: 1px solid #1a2a1a;
+}
+.ptitle {
+    font-size: 10px;
+    color: #4a6a4a;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #1a2a1a;
+    padding-bottom: 3px;
+    margin-bottom: 6px;
+}
+.ptitle span.status {
+    float: right;
+    font-size: 9px;
+    color: #66ff66;
+    letter-spacing: 1px;
+}
+
+.row { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: 12px; }
+.label { color: #4a6a4a; min-width: 70px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* tactical gauge */
+.tgauge { height: 4px; background: #1a2a1a; flex: 1; max-width: 140px; position: relative; }
+.tgauge-fill { height: 100%; position: absolute; left: 0; top: 0; }
+.tgauge::before, .tgauge::after {
+    content: '';
+    position: absolute;
+    top: -2px; width: 1px; height: 8px;
+    background: #3a5a3a;
+}
+.tgauge::before { left: 30%; }
+.tgauge::after { left: 70%; }
+
+.ticker { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #0d1a0d; font-size: 12px; }
+.ticker-sym { min-width: 65px; color: #66ff66; font-weight: bold; letter-spacing: 1px; }
+
+.news-item { font-size: 11px; padding: 4px 0; border-bottom: 1px solid #0d1a0d; display: flex; gap: 6px; line-height: 1.4; }
+.news-tag { font-size: 9px; font-weight: bold; min-width: 50px; letter-spacing: 1px; }
+.news-time { color: #2a3a2a; font-size: 9px; margin-left: auto; white-space: nowrap; }
+
+.site-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 11px; }
+.indicator { font-size: 8px; }
+.indicator.up { color: #66ff66; }
+.indicator.down { color: #cc4444; }
+
+.bottom-bar {
+    grid-column: 1 / -1;
+    background: #0d1a0d;
+    border-top: 1px solid #2a3a2a;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 9px;
+    color: #3a5a3a;
+    gap: 20px;
+    height: 26px;
+    letter-spacing: 1px;
+}
+
+/* center hero section */
+.center-panel {
+    display: flex;
+    flex-direction: column;
+}
+.hero-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid #1a2a1a;
+}
+.hero-cell {
+    padding: 12px 20px;
+    border-right: 1px solid #1a2a1a;
+    text-align: center;
+}
+.hero-cell:last-child { border-right: none; }
+.hero-label { font-size: 9px; color: #4a6a4a; letter-spacing: 3px; text-transform: uppercase; }
+.hero-value { font-size: 36px; color: #66ff66; margin: 4px 0; letter-spacing: 2px; }
+.hero-sub { font-size: 11px; }
+
+.weather-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0;
+    border-bottom: 1px solid #1a2a1a;
+}
+.wg-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #1a2a1a;
+    text-align: center;
+    font-size: 10px;
+}
+.wg-cell:last-child { border-right: none; }
+.wg-val { font-size: 16px; color: #aaffaa; margin: 2px 0; }
+.wg-label { color: #3a5a3a; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+
+.quote-box {
+    padding: 10px 16px;
+    border-top: 1px solid #1a2a1a;
+}
+.quote-text { font-size: 12px; color: #88aa88; font-style: italic; }
+.quote-author { font-size: 10px; color: #4a6a4a; margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
+<div class="header">
+    <div class="left">
+        <div class="title">Raspi Info Hub</div>
+        <div class="coords">49°57'45"N 14°27'34"E // DOLNI BREZANY, CZ</div>
+    </div>
+    <div class="center">
+        <div class="classification">UNCLASSIFIED // FOUO</div>
+    </div>
+    <div class="right">
+        <div class="clock">14:32:07</div>
+        <div class="date">16 MAR 2026</div>
+        <div class="zulu">12:32:07Z</div>
+    </div>
+</div>
+
+<div class="main">
+    <!-- LEFT: Markets -->
+    <div class="panel">
+        <div class="ptitle">Financial Intel <span class="status">● LIVE</span></div>
+
+        <div class="ticker">
+            <span class="ticker-sym">BTC</span>
+            <span style="font-size:16px; color:#aaffaa; font-weight:bold;">$67,421</span>
+            <span class="green" style="font-size:11px;">▲ +2.34%</span>
+        </div>
+        <div class="row" style="font-size:10px;">
+            <span class="dim">EMA12: $65,200</span>
+            <span class="dim">EMA26: $63,800</span>
+            <span class="green">↑ BULL</span>
+        </div>
+        <div class="row" style="font-size:10px;">
+            <span>RSI(14): 72.3</span>
+            <div class="tgauge"><div class="tgauge-fill" style="width:72%;background:#cc4444;"></div></div>
+            <span class="red">OVERBOUGHT</span>
+        </div>
+
+        <div class="ticker" style="margin-top:6px;">
+            <span class="ticker-sym">ETH</span>
+            <span style="font-size:16px; color:#88aa88;">$3,842</span>
+            <span class="red" style="font-size:11px;">▼ -1.12%</span>
+        </div>
+        <div class="row" style="font-size:10px;">
+            <span class="dim">EMA: ↓ BEAR</span>
+            <span>RSI: 38.1</span>
+            <div class="tgauge"><div class="tgauge-fill" style="width:38%;background:#66ff66;"></div></div>
+            <span class="dim">NEUTRAL</span>
+        </div>
+
+        <div style="margin-top:8px; padding-top:6px; border-top:1px solid #1a2a1a;">
+            <div class="ticker"><span class="ticker-sym" style="font-size:11px;">S&P 500</span><span style="color:#aaffaa;">$5,234</span><span class="green" style="font-size:10px;">+0.41%</span></div>
+            <div class="ticker"><span class="ticker-sym" style="font-size:11px;">NASDAQ</span><span style="color:#88aa88;">$16,102</span><span class="red" style="font-size:10px;">-0.18%</span></div>
+            <div class="ticker"><span class="ticker-sym" style="font-size:11px;">AMAZON</span><span style="color:#aaffaa;">$186.42</span><span class="green" style="font-size:10px;">+1.23%</span></div>
+        </div>
+
+        <div style="margin-top:8px; padding-top:6px; border-top:1px solid #1a2a1a;">
+            <div class="ptitle" style="border:none; padding:0; margin-bottom:4px;">Threat Index <span class="status">F&G</span></div>
+            <div class="row">
+                <span style="font-size:22px; color:#66ff66; font-weight:bold;">62</span>
+                <span class="green" style="font-size:11px;">[GREED]</span>
+                <div class="tgauge" style="max-width:200px;"><div class="tgauge-fill" style="width:62%;background:#66ff66;"></div></div>
+            </div>
+        </div>
+
+        <div style="margin-top:8px; padding-top:6px; border-top:1px solid #1a2a1a;">
+            <div class="ptitle" style="border:none; padding:0; margin-bottom:4px;">Asset Monitoring <span class="status">4 TARGETS</span></div>
+            <div class="site-row"><span class="indicator up">■</span> military-aircraft-tracker.com <span style="margin-left:auto;" class="green">142ms</span></div>
+            <div class="site-row"><span class="indicator up">■</span> simplemermaid.com <span style="margin-left:auto;" class="green">89ms</span></div>
+            <div class="site-row"><span class="indicator up">■</span> udelejzahradu.cz <span style="margin-left:auto;" class="green">67ms</span></div>
+            <div class="site-row"><span class="indicator down">■</span> erikamcgregor.cz <span style="margin-left:auto;" class="red">NO RESPONSE</span></div>
+        </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center-panel">
+        <div class="hero-row">
+            <div class="hero-cell">
+                <div class="hero-label">Bitcoin</div>
+                <div class="hero-value">$67,421</div>
+                <div class="hero-sub green">▲ +2.34%</div>
+            </div>
+            <div class="hero-cell">
+                <div class="hero-label">Temperature</div>
+                <div class="hero-value">18°C</div>
+                <div class="hero-sub">Partly Cloudy</div>
+            </div>
+        </div>
+
+        <div class="weather-grid">
+            <div class="wg-cell"><div class="wg-label">Wind</div><div class="wg-val">12</div><div class="wg-label">km/h NW</div></div>
+            <div class="wg-cell"><div class="wg-label">Humidity</div><div class="wg-val">58%</div><div class="wg-label">&nbsp;</div></div>
+            <div class="wg-cell"><div class="wg-label">Pressure</div><div class="wg-val">1018</div><div class="wg-label">hPa</div></div>
+            <div class="wg-cell"><div class="wg-label">UV Index</div><div class="wg-val">4</div><div class="wg-label">moderate</div></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; border-bottom:1px solid #1a2a1a;">
+            <div style="padding:8px 14px; border-right:1px solid #1a2a1a;">
+                <div style="font-size:10px; color:#4a6a4a; letter-spacing:2px;">TODAY FORECAST</div>
+                <div style="font-size:14px; margin:3px 0;">⛅ 8° / 18°</div>
+                <div style="font-size:11px; color:#4a6a4a;">Partly cloudy</div>
+            </div>
+            <div style="padding:8px 14px;">
+                <div style="font-size:10px; color:#4a6a4a; letter-spacing:2px;">TOMORROW</div>
+                <div style="font-size:14px; margin:3px 0;">🌧 5° / 12°</div>
+                <div style="font-size:11px; color:#4a6a4a;">Light rain</div>
+            </div>
+        </div>
+
+        <div style="padding:10px 14px; border-bottom:1px solid #1a2a1a;">
+            <div class="ptitle" style="border:none; padding:0; margin-bottom:4px;">Route Intel → Chodov OC</div>
+            <div style="display:flex; align-items:center; gap:16px;">
+                <span style="font-size:28px; color:#66ff66;">18 min</span>
+                <span class="dim">10.2 km</span>
+                <span class="green" style="font-size:11px;">✓ ROUTE CLEAR</span>
+            </div>
+        </div>
+
+        <!-- News in center -->
+        <div style="flex:1; padding:10px 14px; overflow:hidden;">
+            <div class="ptitle" style="border:none; padding:0; margin-bottom:4px;">Sigint Feed <span class="status">LIVE</span></div>
+            <div class="news-item"><span class="news-tag bright">[WORLD]</span> Fed signals potential rate adjustment amid cooling inflation data <span class="news-time">2h</span></div>
+            <div class="news-item"><span class="news-tag bright">[WORLD]</span> Tech giants rally as AI infrastructure spending exceeds expectations <span class="news-time">3h</span></div>
+            <div class="news-item"><span class="news-tag bright">[WORLD]</span> European markets hit record highs on defence spending surge <span class="news-time">4h</span></div>
+            <div class="news-item"><span class="news-tag bright">[WORLD]</span> Oil prices drop as OPEC+ signals increased production targets <span class="news-time">5h</span></div>
+            <div class="news-item"><span class="news-tag amber">[CZ]</span> Praha schvaluje rozsireni metra D — stavba pokracuje dle planu <span class="news-time">1h</span></div>
+            <div class="news-item"><span class="news-tag amber">[CZ]</span> Ceska ekonomika roste o 2.1% — nad ocekavanim analytiku <span class="news-time">3h</span></div>
+            <div class="news-item"><span class="news-tag amber">[CZ]</span> Skoda Auto oznamuje novy elektromobil pro rok 2027 <span class="news-time">5h</span></div>
+            <div class="news-item"><span class="news-tag amber">[CZ]</span> Rekordni navstevnost ceskych hradu a zamku v zimni sezone <span class="news-time">6h</span></div>
+        </div>
+
+        <div class="quote-box">
+            <div class="quote-text">"You have power over your mind, not outside events. Realize this, and you will find strength."</div>
+            <div class="quote-author">— Marcus Aurelius</div>
+        </div>
+    </div>
+
+    <!-- RIGHT: empty tactical feel — compass / radar vibe -->
+    <div class="panel" style="display:flex; flex-direction:column;">
+        <div class="ptitle">Situation Awareness <span class="status">● ACTIVE</span></div>
+
+        <!-- Radar-style compass -->
+        <div style="text-align:center; padding:15px;">
+            <svg width="200" height="200" viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="#1a2a1a" stroke-width="1"/>
+                <circle cx="100" cy="100" r="60" fill="none" stroke="#1a2a1a" stroke-width="1"/>
+                <circle cx="100" cy="100" r="30" fill="none" stroke="#1a2a1a" stroke-width="1"/>
+                <line x1="100" y1="10" x2="100" y2="190" stroke="#1a2a1a" stroke-width="1"/>
+                <line x1="10" y1="100" x2="190" y2="100" stroke="#1a2a1a" stroke-width="1"/>
+                <text x="100" y="8" text-anchor="middle" fill="#4a6a4a" font-size="10" font-family="Share Tech Mono">N</text>
+                <text x="100" y="198" text-anchor="middle" fill="#4a6a4a" font-size="10" font-family="Share Tech Mono">S</text>
+                <text x="5" y="103" fill="#4a6a4a" font-size="10" font-family="Share Tech Mono">W</text>
+                <text x="190" y="103" fill="#4a6a4a" font-size="10" font-family="Share Tech Mono">E</text>
+                <!-- wind direction indicator -->
+                <line x1="100" y1="100" x2="70" y2="30" stroke="#66ff66" stroke-width="2"/>
+                <circle cx="70" cy="30" r="3" fill="#66ff66"/>
+                <text x="60" y="25" fill="#66ff66" font-size="9" font-family="Share Tech Mono">12km/h</text>
+                <!-- location dot -->
+                <circle cx="100" cy="100" r="4" fill="#66ff66" opacity="0.8"/>
+                <circle cx="100" cy="100" r="8" fill="none" stroke="#66ff66" stroke-width="1" opacity="0.4"/>
+                <!-- destination marker -->
+                <circle cx="120" cy="55" r="3" fill="#ccaa44"/>
+                <text x="128" y="58" fill="#ccaa44" font-size="8" font-family="Share Tech Mono">CHODOV</text>
+            </svg>
+        </div>
+
+        <div style="text-align:center; font-size:10px; color:#3a5a3a; letter-spacing:2px;">
+            WIND: NW 12KM/H // BEARING TO DEST: 018°
+        </div>
+
+        <!-- Sunrise/sunset timeline -->
+        <div style="padding:12px 14px; margin-top:auto; border-top:1px solid #1a2a1a;">
+            <div style="font-size:9px; color:#4a6a4a; letter-spacing:2px; margin-bottom:6px;">SOLAR TIMELINE</div>
+            <div style="position:relative; height:20px; background:#0d1a0d; border:1px solid #1a2a1a;">
+                <!-- night portions -->
+                <div style="position:absolute;left:0;top:0;bottom:0;width:25%;background:rgba(0,0,40,0.3);"></div>
+                <div style="position:absolute;right:0;top:0;bottom:0;width:25%;background:rgba(0,0,40,0.3);"></div>
+                <!-- current time marker -->
+                <div style="position:absolute;left:60%;top:-2px;bottom:-2px;width:2px;background:#66ff66;"></div>
+                <!-- sunrise marker -->
+                <div style="position:absolute;left:25%;top:0;bottom:0;width:1px;background:#ccaa44;"></div>
+                <!-- sunset marker -->
+                <div style="position:absolute;left:75%;top:0;bottom:0;width:1px;background:#ccaa44;"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:9px; color:#3a5a3a; margin-top:2px;">
+                <span>00:00</span><span style="color:#ccaa44;">↑ 06:12</span><span style="color:#66ff66;">NOW</span><span style="color:#ccaa44;">↓ 18:04</span><span>24:00</span>
+            </div>
+        </div>
+
+        <!-- Forecast bars -->
+        <div style="padding:10px 14px; border-top:1px solid #1a2a1a;">
+            <div style="font-size:9px; color:#4a6a4a; letter-spacing:2px; margin-bottom:6px;">7-DAY TEMP RANGE</div>
+            <div style="display:flex; gap:4px; align-items:flex-end; height:60px;">
+                <div style="flex:1;text-align:center;"><div style="background:linear-gradient(0deg,#2a3a6a,#66ff66);height:40px;margin:0 4px;border-radius:2px 2px 0 0;"></div><div style="font-size:8px;color:#3a5a3a;">M</div></div>
+                <div style="flex:1;text-align:center;"><div style="background:linear-gradient(0deg,#2a3a6a,#4488aa);height:30px;margin:0 4px;border-radius:2px 2px 0 0;"></div><div style="font-size:8px;color:#3a5a3a;">T</div></div>
+                <div style="flex:1;text-align:center;"><div style="background:linear-gradient(0deg,#2a3a6a,#4a8a6a);height:35px;margin:0 4px;border-radius:2px 2px 0 0;"></div><div style="font-size:8px;color:#3a5a3a;">W</div></div>
+                <div style="flex:1;text-align:center;"><div style="background:linear-gradient(0deg,#2a3a6a,#4a8a6a);height:38px;margin:0 4px;border-radius:2px 2px 0 0;"></div><div style="font-size:8px;color:#3a5a3a;">T</div></div>
+                <div style="flex:1;text-align:center;"><div style="background:linear-gradient(0deg,#2a3a6a,#66ff66);height:45px;margin:0 4px;border-radius:2px 2px 0 0;"></div><div style="font-size:8px;color:#3a5a3a;">F</div></div>
+                <div style="flex:1;text-align:center;"><div style="background:linear-gradient(0deg,#2a3a6a,#88cc66);height:50px;margin:0 4px;border-radius:2px 2px 0 0;"></div><div style="font-size:8px;color:#3a5a3a;">S</div></div>
+                <div style="flex:1;text-align:center;"><div style="background:linear-gradient(0deg,#2a3a6a,#4a8a6a);height:42px;margin:0 4px;border-radius:2px 2px 0 0;"></div><div style="font-size:8px;color:#3a5a3a;">S</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <span>COMMS: <span class="green">NOMINAL</span></span>
+        <span>UPTIME: 4H22M</span>
+        <span>FRAME: 60/S</span>
+        <span>MEM: 42MB ALLOC</span>
+        <span style="margin-left:auto;">2026-03-16T14:32:07Z // CLASSIFICATION: UNCLASSIFIED</span>
+    </div>
+</div>
+
+</body>
+</html>

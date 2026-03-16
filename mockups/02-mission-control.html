@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mockup 02 — Mission Control</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #080c12;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+}
+body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+    z-index: 100;
+}
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    box-shadow: inset 0 0 200px rgba(0,0,0,0.6);
+    pointer-events: none;
+    z-index: 101;
+}
+
+/* 3-column layout with header strip */
+.top-strip {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: rgba(0,255,65,0.03);
+    border-bottom: 1px solid rgba(0,255,65,0.2);
+}
+.top-strip .title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 8px rgba(0,255,255,0.3);
+}
+.top-strip .clock {
+    font-size: 28px;
+    font-weight: bold;
+    text-shadow: 0 0 12px rgba(0,255,65,0.4);
+}
+.top-strip .date { font-size: 12px; color: #00b330; }
+.top-strip .center-info {
+    text-align: center;
+}
+
+.main {
+    display: grid;
+    grid-template-columns: 480px 1fr 480px;
+    grid-template-rows: 1fr;
+    height: calc(100% - 50px - 26px);
+    gap: 0;
+}
+
+.col {
+    border-right: 1px solid rgba(0,255,65,0.1);
+    overflow: hidden;
+}
+.col:last-child { border-right: none; }
+
+.panel {
+    padding: 8px 14px;
+    border-bottom: 1px solid rgba(0,255,65,0.08);
+}
+.panel-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: #00ffff;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.green { color: #00ff41; }
+.dim { color: #006b1d; }
+.cyan { color: #00ffff; }
+.orange { color: #ff6600; }
+.red { color: #ff0040; }
+.muted { color: #3a5a3a; }
+
+/* big center number display */
+.big-num {
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(0,255,65,0.3);
+    padding: 10px 0;
+}
+.big-label {
+    text-align: center;
+    font-size: 12px;
+    color: #00b330;
+}
+
+/* ticker row */
+.ticker {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,255,65,0.05);
+    font-size: 13px;
+}
+.ticker-name { color: #00b330; min-width: 70px; }
+.ticker-price { font-weight: bold; }
+.ticker-change { min-width: 80px; text-align: right; }
+
+.gauge-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    margin: 3px 0;
+}
+.gauge-bar { height: 6px; background: rgba(255,255,255,0.05); flex: 1; position: relative; }
+.gauge-fill { height: 100%; position: absolute; left: 0; top: 0; }
+
+/* weather big */
+.weather-big {
+    text-align: center;
+    padding: 15px;
+}
+.weather-temp {
+    font-size: 56px;
+    font-weight: bold;
+    text-shadow: 0 0 20px rgba(0,255,65,0.3);
+}
+.weather-desc { font-size: 14px; color: #00b330; }
+.weather-details { font-size: 11px; color: #006b1d; margin-top: 8px; }
+
+/* news in center */
+.news-scroll {
+    padding: 8px 14px;
+}
+.news-item {
+    font-size: 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(0,255,65,0.05);
+    display: flex;
+    gap: 8px;
+}
+.news-tag { font-size: 10px; font-weight: bold; min-width: 50px; }
+.news-text { flex: 1; }
+.news-time { color: #3a5a3a; font-size: 10px; }
+
+/* quote at bottom center */
+.quote-box {
+    padding: 10px 20px;
+    border-top: 1px solid rgba(0,255,65,0.15);
+    text-align: center;
+}
+.quote-text { font-size: 13px; font-style: italic; color: #00ff41; }
+.quote-author { font-size: 11px; color: #00b330; margin-top: 4px; }
+
+/* site monitor compact */
+.site-row { display: flex; align-items: center; gap: 6px; font-size: 11px; margin: 3px 0; }
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.dot.up { background: #00ff41; box-shadow: 0 0 3px #00ff41; }
+.dot.down { background: #ff0040; box-shadow: 0 0 3px #ff0040; }
+
+/* bottom bar */
+.bottom-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 26px;
+    background: rgba(0,255,65,0.03);
+    border-top: 1px solid rgba(0,255,65,0.15);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    font-size: 10px;
+    color: #3a5a3a;
+    gap: 25px;
+}
+.bottom-bar .online { color: #00ff41; }
+
+/* center column features */
+.center-hero {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.hero-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid rgba(0,255,65,0.1);
+}
+</style>
+</head>
+<body>
+
+<!-- TOP STRIP -->
+<div class="top-strip">
+    <div class="title">◈ RASPI INFO HUB</div>
+    <div class="center-info">
+        <div class="dim" style="font-size:10px;">DOLNI BREZANY, CZ &nbsp; | &nbsp; 49.96°N 14.46°E</div>
+    </div>
+    <div style="text-align:right;">
+        <div class="clock">14:32:07</div>
+        <div class="date">MONDAY 16 MARCH 2026</div>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- LEFT COLUMN: Markets -->
+    <div class="col">
+        <div class="panel">
+            <div class="panel-title">▸ Crypto</div>
+            <div class="ticker">
+                <span class="ticker-name">BTC</span>
+                <span class="ticker-price">$67,421</span>
+                <span class="ticker-change green">▲ +2.34%</span>
+            </div>
+            <div class="gauge-row">
+                <span class="dim">EMA12: $65,200</span>
+                <span class="dim">EMA26: $63,800</span>
+                <span class="green" style="font-weight:bold;">BULL</span>
+            </div>
+            <div class="gauge-row">
+                <span>RSI 72.3</span>
+                <div class="gauge-bar"><div class="gauge-fill" style="width:72%;background:#ff0040;"></div></div>
+                <span class="red">OB</span>
+            </div>
+
+            <div class="ticker" style="margin-top:8px;">
+                <span class="ticker-name">ETH</span>
+                <span class="ticker-price">$3,842</span>
+                <span class="ticker-change red">▼ -1.12%</span>
+            </div>
+            <div class="gauge-row">
+                <span class="dim">EMA12: $3,900</span>
+                <span class="dim">EMA26: $3,950</span>
+                <span class="red" style="font-weight:bold;">BEAR</span>
+            </div>
+            <div class="gauge-row">
+                <span>RSI 38.1</span>
+                <div class="gauge-bar"><div class="gauge-fill" style="width:38%;background:#00ff41;"></div></div>
+                <span class="muted">OK</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">▸ Stocks</div>
+            <div class="ticker">
+                <span class="ticker-name">S&P 500</span>
+                <span class="ticker-price">$5,234</span>
+                <span class="ticker-change green">▲ +0.41%</span>
+            </div>
+            <div class="ticker">
+                <span class="ticker-name">NASDAQ</span>
+                <span class="ticker-price">$16,102</span>
+                <span class="ticker-change red">▼ -0.18%</span>
+            </div>
+            <div class="ticker">
+                <span class="ticker-name">AMAZON</span>
+                <span class="ticker-price">$186.42</span>
+                <span class="ticker-change green">▲ +1.23%</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">▸ Fear & Greed</div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:32px; font-weight:bold;">62</span>
+                <span style="font-size:13px; color:#00b330;">[GREED]</span>
+            </div>
+            <div class="gauge-bar" style="height:8px; margin:6px 0;">
+                <div class="gauge-fill" style="width:62%;background:linear-gradient(90deg,#ff0040,#ff6600,#00ff41,#ff6600);"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">▸ Site Monitor</div>
+            <div class="site-row"><span class="dot up"></span> military-aircraft-tracker.com <span style="margin-left:auto;" class="green">142ms</span></div>
+            <div class="site-row"><span class="dot up"></span> simplemermaid.com <span style="margin-left:auto;" class="green">89ms</span></div>
+            <div class="site-row"><span class="dot up"></span> udelejzahradu.cz <span style="margin-left:auto;" class="green">67ms</span></div>
+            <div class="site-row"><span class="dot down"></span> erikamcgregor.cz <span style="margin-left:auto;" class="red">DOWN</span></div>
+        </div>
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div class="col center-hero">
+        <div class="hero-top">
+            <!-- BTC hero number -->
+            <div style="border-right:1px solid rgba(0,255,65,0.1); padding:10px;">
+                <div class="big-label">BITCOIN</div>
+                <div class="big-num">$67,421</div>
+                <div class="big-label green">▲ +2.34% (24h)</div>
+            </div>
+            <!-- Weather hero -->
+            <div class="weather-big">
+                <div class="weather-desc">☀ Partly Cloudy</div>
+                <div class="weather-temp">18°C</div>
+                <div class="weather-details">
+                    Wind 12km/h NW &nbsp;|&nbsp; Humidity 58% &nbsp;|&nbsp; UV 4<br>
+                    Today: 8°/18° &nbsp;|&nbsp; Tomorrow: 5°/12° 🌧
+                </div>
+            </div>
+        </div>
+
+        <!-- Traffic -->
+        <div class="panel" style="text-align:center; padding:12px;">
+            <div style="font-size:12px; color:#00b330;">DRIVE TO CHODOV OC</div>
+            <div style="font-size:36px; font-weight:bold; margin:4px 0;">18 min</div>
+            <div style="font-size:12px; color:#006b1d;">10.2 km &nbsp;|&nbsp; ✓ Normal traffic</div>
+        </div>
+
+        <!-- News -->
+        <div class="news-scroll" style="flex:1; overflow:hidden;">
+            <div class="panel-title">▸ News Feed</div>
+            <div class="news-item"><span class="news-tag cyan">[WORLD]</span><span class="news-text">Fed signals potential rate adjustment amid cooling inflation data</span><span class="news-time">2h</span></div>
+            <div class="news-item"><span class="news-tag cyan">[WORLD]</span><span class="news-text">Tech giants rally as AI infrastructure spending exceeds expectations</span><span class="news-time">3h</span></div>
+            <div class="news-item"><span class="news-tag cyan">[WORLD]</span><span class="news-text">European markets hit record highs on defence spending surge</span><span class="news-time">4h</span></div>
+            <div class="news-item"><span class="news-tag cyan">[WORLD]</span><span class="news-text">Oil prices drop as OPEC+ signals increased production targets for Q2</span><span class="news-time">5h</span></div>
+            <div class="news-item"><span class="news-tag orange">[CZ]</span><span class="news-text">Praha schvaluje rozsireni metra D — stavba pokracuje dle planu</span><span class="news-time">1h</span></div>
+            <div class="news-item"><span class="news-tag orange">[CZ]</span><span class="news-text">Ceska ekonomika roste o 2.1% — nad ocekavanim analytiku</span><span class="news-time">3h</span></div>
+            <div class="news-item"><span class="news-tag orange">[CZ]</span><span class="news-text">Skoda Auto oznamuje novy elektromobil — vyroba v Mlada Boleslav</span><span class="news-time">5h</span></div>
+            <div class="news-item"><span class="news-tag orange">[CZ]</span><span class="news-text">Rekordni navstevnost ceskych hradu a zamku v zimni sezone</span><span class="news-time">6h</span></div>
+        </div>
+
+        <!-- Quote -->
+        <div class="quote-box">
+            <div class="quote-text">"You have power over your mind, not outside events. Realize this, and you will find strength."</div>
+            <div class="quote-author">— Marcus Aurelius</div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Extended info -->
+    <div class="col">
+        <div class="panel">
+            <div class="panel-title">▸ Market Signals</div>
+            <div style="font-size:11px; line-height:1.8;">
+                <div class="gauge-row"><span style="min-width:110px;">BTC Dominance</span><div class="gauge-bar"><div class="gauge-fill" style="width:52%;background:#00ff41;"></div></div><span>52.1%</span></div>
+                <div class="gauge-row"><span style="min-width:110px;">ETH/BTC</span><div class="gauge-bar"><div class="gauge-fill" style="width:35%;background:#ff6600;"></div></div><span>0.057</span></div>
+                <div class="gauge-row"><span style="min-width:110px;">DXY Index</span><div class="gauge-bar"><div class="gauge-fill" style="width:60%;background:#00b330;"></div></div><span>104.2</span></div>
+                <div class="gauge-row"><span style="min-width:110px;">VIX</span><div class="gauge-bar"><div class="gauge-fill" style="width:18%;background:#00ff41;"></div></div><span>14.8</span></div>
+                <div class="gauge-row"><span style="min-width:110px;">Gold</span><div class="gauge-bar"><div class="gauge-fill" style="width:70%;background:#ff6600;"></div></div><span>$2,164</span></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">▸ 7-Day Forecast</div>
+            <div style="font-size:11px; line-height:2;">
+                <div>MON &nbsp; ☀ &nbsp; 8° / 18° &nbsp; <span class="dim">Partly cloudy</span></div>
+                <div>TUE &nbsp; 🌧 &nbsp; 5° / 12° &nbsp; <span class="dim">Light rain</span></div>
+                <div>WED &nbsp; ☁ &nbsp; 6° / 14° &nbsp; <span class="dim">Overcast</span></div>
+                <div>THU &nbsp; ⛅ &nbsp; 7° / 16° &nbsp; <span class="dim">Partly cloudy</span></div>
+                <div>FRI &nbsp; ☀ &nbsp; 9° / 19° &nbsp; <span class="dim">Sunny</span></div>
+                <div>SAT &nbsp; ☀ &nbsp; 10° / 21° &nbsp; <span class="dim">Sunny</span></div>
+                <div>SUN &nbsp; ⛅ &nbsp; 8° / 17° &nbsp; <span class="dim">Partly cloudy</span></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">▸ Crypto Charts (7D)</div>
+            <div style="text-align:center; color:#006b1d; font-size:11px; margin:4px 0;">BTC/USD</div>
+            <div style="height:80px; background:rgba(0,255,65,0.03); position:relative; border:1px solid rgba(0,255,65,0.1);">
+                <svg width="100%" height="100%" viewBox="0 0 450 80" preserveAspectRatio="none">
+                    <path d="M0,60 L20,55 40,58 60,50 80,52 100,45 120,48 140,40 160,42 180,35 200,38 220,30 240,34 260,25 280,28 300,20 320,25 340,18 360,22 380,15 400,20 420,12 450,16" fill="none" stroke="#00ff41" stroke-width="1.5"/>
+                    <path d="M0,60 L20,55 40,58 60,50 80,52 100,45 120,48 140,40 160,42 180,35 200,38 220,30 240,34 260,25 280,28 300,20 320,25 340,18 360,22 380,15 400,20 420,12 450,16 L450,80 L0,80 Z" fill="rgba(0,255,65,0.05)"/>
+                </svg>
+            </div>
+            <div style="text-align:center; color:#006b1d; font-size:11px; margin:8px 0 4px;">ETH/USD</div>
+            <div style="height:80px; background:rgba(255,0,64,0.02); position:relative; border:1px solid rgba(255,0,64,0.1);">
+                <svg width="100%" height="100%" viewBox="0 0 450 80" preserveAspectRatio="none">
+                    <path d="M0,20 L20,22 40,18 60,25 80,23 100,30 120,28 140,35 160,32 180,38 200,35 220,42 240,38 260,45 280,42 300,48 320,44 340,50 360,46 380,52 400,48 420,55 450,50" fill="none" stroke="#ff0040" stroke-width="1.5"/>
+                    <path d="M0,20 L20,22 40,18 60,25 80,23 100,30 120,28 140,35 160,32 180,38 200,35 220,42 240,38 260,45 280,42 300,48 320,44 340,50 360,46 380,52 400,48 420,55 450,50 L450,80 L0,80 Z" fill="rgba(255,0,64,0.03)"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="panel" style="flex:1;">
+            <div class="panel-title">▸ Quick Stats</div>
+            <div style="font-size:11px; line-height:2; color:#006b1d;">
+                <div>Global crypto mcap: <span class="green">$2.65T</span></div>
+                <div>24h volume: <span class="green">$98.4B</span></div>
+                <div>BTC dominance: <span class="green">52.1%</span></div>
+                <div>Active addresses: <span class="green">1.04M</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+    <span>NET: <span class="online">ONLINE</span></span>
+    <span>SESSION: 4h 22m</span>
+    <span>FPS: 60</span>
+    <span>HEAP: 42/128MB</span>
+    <span style="margin-left:auto;">2026-03-16 14:32:07 UTC</span>
+</div>
+
+</body>
+</html>

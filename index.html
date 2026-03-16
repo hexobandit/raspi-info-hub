@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RASPI INFO HUB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RASPI INFO HUB — Military-Tracker Inspired Dark Theme
+   ============================================================ */
+
+:root {
+    --bg:          #0a0f0a;
+    --bg-card:     rgba(15, 25, 15, 0.8);
+    --bg-card-hover: rgba(20, 35, 20, 0.9);
+    --bg-subtle:   rgba(0, 255, 65, 0.03);
+    --text:        #c8d6c8;
+    --text-bright: #e0f0e0;
+    --accent:      #00ff41;
+    --accent-dim:  #00b330;
+    --secondary:   #4a6a4a;
+    --muted:       #3a5a3a;
+    --dim:         #2a4a2a;
+    --border:      rgba(0, 255, 65, 0.08);
+    --border-hover: rgba(0, 255, 65, 0.2);
+    --cyan:        #00cccc;
+    --orange:      #ff8800;
+    --red:         #ff3355;
+    --amber:       #ccaa44;
+    --green-glow:  rgba(0, 255, 65, 0.15);
+    --font:        'JetBrains Mono', 'Courier New', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: default;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Scanline overlay */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.04) 2px,
+        rgba(0, 0, 0, 0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* ---- BOOT SCREEN ---- */
+#boot-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--accent);
+    transition: opacity 0.6s ease;
+}
+#boot-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+#boot-screen .boot-line {
+    opacity: 0;
+    animation: bootFade 0.3s forwards;
+}
+@keyframes bootFade {
+    to { opacity: 1; }
+}
+#boot-screen .boot-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+    color: var(--accent);
+    text-shadow: 0 0 20px var(--green-glow);
+}
+#boot-screen .boot-ok { color: var(--accent); }
+#boot-screen .boot-loading { color: var(--amber); }
+#boot-screen .boot-bar {
+    width: 340px;
+    height: 3px;
+    background: var(--dim);
+    margin-top: 12px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+#boot-screen .boot-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+}
+
+/* ---- HEADER ---- */
+.header {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.header-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px var(--green-glow);
+}
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(0, 255, 65, 0.08);
+    padding: 2px 10px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+}
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.header-center {
+    font-size: 10px;
+    color: var(--secondary);
+    letter-spacing: 2px;
+    text-align: center;
+}
+.header-right {
+    text-align: right;
+}
+.header-clock {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-shadow: 0 0 12px var(--green-glow);
+}
+.header-date {
+    font-size: 10px;
+    color: var(--accent-dim);
+    letter-spacing: 1px;
+}
+
+/* ---- MAIN 3-COLUMN LAYOUT ---- */
+.main {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 0.8fr;
+    height: calc(100vh - 52px - 28px);
+    gap: 0;
+}
+
+.col {
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.col-left {
+    border-right: 1px solid var(--border);
+}
+.col-right {
+    border-left: 1px solid var(--border);
+}
+
+/* ---- CARDS / PANELS ---- */
+.panel {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.panel:hover {
+    background: var(--bg-card-hover);
+    border-bottom-color: var(--border-hover);
+}
+.panel-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--cyan);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.panel-title .live-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 4px var(--accent);
+    animation: blink 2s ease-in-out infinite;
+}
+
+/* ---- PILL BADGES ---- */
+.pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+.pill-bullish {
+    color: #00ff41;
+    background: rgba(0, 255, 65, 0.15);
+}
+.pill-bearish {
+    color: #ff3355;
+    background: rgba(255, 51, 85, 0.15);
+}
+.pill-overbought {
+    color: #ff3355;
+    background: rgba(255, 51, 85, 0.15);
+}
+.pill-oversold {
+    color: #ff8800;
+    background: rgba(255, 136, 0, 0.15);
+}
+.pill-neutral {
+    color: #8a9a8a;
+    background: rgba(138, 154, 138, 0.12);
+}
+.pill-greed {
+    color: #00ff41;
+    background: rgba(0, 255, 65, 0.15);
+}
+.pill-fear {
+    color: #ff3355;
+    background: rgba(255, 51, 85, 0.15);
+}
+.pill-extreme-greed {
+    color: #ff8800;
+    background: rgba(255, 136, 0, 0.15);
+}
+.pill-extreme-fear {
+    color: #ff3355;
+    background: rgba(255, 51, 85, 0.2);
+}
+.pill-up {
+    color: #00ff41;
+    background: rgba(0, 255, 65, 0.12);
+}
+.pill-down {
+    color: #ff3355;
+    background: rgba(255, 51, 85, 0.12);
+}
+.pill-tag {
+    font-size: 9px;
+    padding: 1px 6px;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+.pill-tag-world {
+    color: var(--cyan);
+    background: rgba(0, 204, 204, 0.12);
+}
+.pill-tag-cz {
+    color: var(--orange);
+    background: rgba(255, 136, 0, 0.12);
+}
+
+/* ---- CRYPTO ROWS ---- */
+.crypto-row {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.04);
+}
+.crypto-row:last-child { border-bottom: none; }
+.crypto-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+.crypto-symbol {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-bright);
+    min-width: 45px;
+}
+.crypto-price {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-bright);
+}
+.crypto-change {
+    font-size: 12px;
+    font-weight: 500;
+}
+.crypto-details {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 11px;
+    color: var(--secondary);
+    margin-top: 3px;
+}
+.crypto-ema-row {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+.crypto-rsi-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+/* ---- GAUGE BARS ---- */
+.gauge {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.04);
+    flex: 1;
+    max-width: 130px;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+.gauge-fill {
+    height: 100%;
+    border-radius: 2px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: width 0.6s ease;
+}
+.gauge-markers {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ---- STOCKS ---- */
+.stock-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.04);
+    font-size: 12px;
+}
+.stock-row:last-child { border-bottom: none; }
+.stock-name {
+    min-width: 90px;
+    color: var(--secondary);
+    font-weight: 500;
+    font-size: 11px;
+}
+.stock-price {
+    font-weight: 600;
+    color: var(--text-bright);
+    min-width: 90px;
+}
+.stock-change {
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 70px;
+    text-align: right;
+}
+
+/* ---- CENTER HERO ---- */
+.hero-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+}
+.hero-cell {
+    padding: 16px 24px;
+    text-align: center;
+    background: var(--bg-card);
+    transition: background 0.2s ease;
+}
+.hero-cell:first-child {
+    border-right: 1px solid var(--border);
+}
+.hero-cell:hover {
+    background: var(--bg-card-hover);
+}
+.hero-label {
+    font-size: 10px;
+    color: var(--secondary);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+.hero-value {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-shadow: 0 0 20px var(--green-glow);
+    margin: 2px 0;
+    line-height: 1.1;
+}
+.hero-sub {
+    font-size: 12px;
+    color: var(--accent-dim);
+}
+
+/* ---- TRAFFIC BAR ---- */
+.traffic-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 12px 20px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s ease;
+}
+.traffic-bar:hover {
+    background: var(--bg-card-hover);
+}
+.traffic-dest {
+    font-size: 10px;
+    color: var(--secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.traffic-time {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--green-glow);
+}
+.traffic-info {
+    font-size: 11px;
+    color: var(--muted);
+}
+.traffic-rush {
+    color: var(--orange);
+}
+
+/* ---- NEWS ---- */
+.news-container {
+    flex: 1;
+    overflow: hidden;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+}
+.news-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.03);
+    font-size: 12px;
+    line-height: 1.4;
+    transition: transform 0.15s ease, opacity 0.3s ease;
+}
+.news-item:hover {
+    transform: translateY(-1px);
+}
+.news-text {
+    flex: 1;
+    color: var(--text);
+}
+.news-time {
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+    min-width: 32px;
+    text-align: right;
+}
+
+/* ---- QUOTE ---- */
+.quote-box {
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border-top: 1px solid rgba(0, 255, 65, 0.12);
+    text-align: center;
+    flex-shrink: 0;
+}
+.quote-text {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--accent);
+    line-height: 1.5;
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.08);
+}
+.quote-author {
+    font-size: 11px;
+    color: var(--accent-dim);
+    margin-top: 4px;
+    font-style: normal;
+}
+
+/* ---- FEAR & GREED ---- */
+.fng-display {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+.fng-value {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+}
+.fng-gauge {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+.fng-gauge-fill {
+    height: 100%;
+    border-radius: 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: width 0.8s ease;
+}
+.fng-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    margin-top: 4px;
+    letter-spacing: 1px;
+}
+
+/* ---- SITE MONITOR ---- */
+.site-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.03);
+}
+.site-row:last-child { border-bottom: none; }
+.site-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.site-dot.up {
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    animation: blink 2.5s ease-in-out infinite;
+}
+.site-dot.down {
+    background: var(--red);
+    box-shadow: 0 0 6px var(--red);
+    animation: blink 1s ease-in-out infinite;
+}
+.site-dot.pending {
+    background: var(--muted);
+}
+.site-name {
+    flex: 1;
+    color: var(--secondary);
+    font-size: 11px;
+}
+.site-latency {
+    font-weight: 500;
+    min-width: 55px;
+    text-align: right;
+    font-size: 11px;
+}
+.site-sparkline {
+    width: 60px;
+    height: 16px;
+    flex-shrink: 0;
+}
+.site-sparkline svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* ---- WEATHER DETAILS ---- */
+.weather-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 6px;
+}
+.weather-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 2px 0;
+}
+.weather-stat-label {
+    color: var(--muted);
+}
+.weather-stat-value {
+    color: var(--text);
+    font-weight: 500;
+}
+.forecast-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.03);
+}
+.forecast-row:last-child { border-bottom: none; }
+.forecast-day {
+    min-width: 35px;
+    font-weight: 600;
+    color: var(--secondary);
+}
+.forecast-icon {
+    min-width: 20px;
+    text-align: center;
+}
+.forecast-temps {
+    color: var(--text);
+    min-width: 70px;
+}
+.forecast-desc {
+    color: var(--muted);
+    flex: 1;
+    font-size: 10px;
+}
+
+/* ---- TRENDING ---- */
+.trending-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.03);
+    line-height: 1.4;
+}
+.trending-item:last-child { border-bottom: none; }
+.trending-rank {
+    color: var(--muted);
+    font-size: 10px;
+    min-width: 18px;
+    text-align: right;
+    font-weight: 600;
+}
+.trending-text {
+    flex: 1;
+    color: var(--text);
+}
+.trending-meta {
+    color: var(--muted);
+    font-size: 9px;
+    white-space: nowrap;
+}
+.pill-tag-trend {
+    color: var(--accent);
+    background: rgba(0, 255, 65, 0.08);
+}
+.pill-tag-hn {
+    color: #ff6600;
+    background: rgba(255, 102, 0, 0.12);
+}
+
+/* ---- FOREX ---- */
+.forex-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(0, 255, 65, 0.03);
+}
+.forex-row:last-child { border-bottom: none; }
+.forex-pair {
+    min-width: 80px;
+    color: var(--cyan);
+    font-weight: 600;
+    font-size: 11px;
+}
+.forex-rate {
+    font-weight: 600;
+    color: var(--text-bright);
+    min-width: 80px;
+    text-align: right;
+    margin-left: auto;
+}
+
+/* ---- SPARKLINE CHARTS (SVG in panels) ---- */
+.chart-container {
+    height: 200px;
+    background: rgba(0, 255, 65, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-top: 6px;
+    position: relative;
+    overflow: hidden;
+}
+.chart-container svg {
+    width: 100%;
+    height: 100%;
+}
+.chart-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 4px;
+    letter-spacing: 1px;
+}
+
+/* ---- BOTTOM BAR ---- */
+.bottom-bar {
+    height: 28px;
+    background: rgba(0, 255, 65, 0.02);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 10px;
+    color: var(--muted);
+    gap: 24px;
+    letter-spacing: 1px;
+}
+.bottom-bar .online {
+    color: var(--accent);
+    font-weight: 600;
+}
+.bottom-bar .offline {
+    color: var(--red);
+    font-weight: 600;
+}
+.bottom-bar .ts {
+    margin-left: auto;
+    color: var(--secondary);
+}
+
+/* ---- UTILITY COLORS ---- */
+.green  { color: var(--accent); }
+.red    { color: var(--red); }
+.orange { color: var(--orange); }
+.cyan   { color: var(--cyan); }
+.muted  { color: var(--muted); }
+.dim    { color: var(--dim); }
+.bright { color: var(--text-bright); }
+.amber  { color: var(--amber); }
+
+/* ---- LOADING STATES ---- */
+.loading-text {
+    color: var(--muted);
+    font-size: 11px;
+    font-style: italic;
+}
+
+/* ---- SCROLLBAR HIDE ---- */
+::-webkit-scrollbar { display: none; }
+
+/* ---- TEXT SHADOW FOR HERO ---- */
+.glow-text {
+    text-shadow: 0 0 15px var(--green-glow), 0 0 30px rgba(0, 255, 65, 0.06);
+}
+
+/* ---- HOVER LIFT EFFECT ---- */
+.lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 255, 65, 0.06);
+}
+.lift {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+</style>
+</head>
+<body>
+
+<!-- ============ BOOT SCREEN ============ -->
+<div id="boot-screen">
+    <div class="boot-title" id="boot-title">RASPI INFO HUB</div>
+    <div class="boot-line" style="animation-delay:0.1s">Initializing subsystems...</div>
+    <div class="boot-line" style="animation-delay:0.2s">  [<span class="boot-ok">OK</span>] DOM renderer</div>
+    <div class="boot-line" style="animation-delay:0.3s">  [<span class="boot-ok">OK</span>] Config (my-config.js)</div>
+    <div class="boot-line" style="animation-delay:0.4s">  [<span id="boot-crypto" class="boot-loading">--</span>] Crypto feeds</div>
+    <div class="boot-line" style="animation-delay:0.5s">  [<span id="boot-stocks" class="boot-loading">--</span>] Stock feeds</div>
+    <div class="boot-line" style="animation-delay:0.6s">  [<span id="boot-weather" class="boot-loading">--</span>] Weather data</div>
+    <div class="boot-line" style="animation-delay:0.7s">  [<span id="boot-news" class="boot-loading">--</span>] News feeds</div>
+    <div class="boot-line" style="animation-delay:0.8s">  [<span id="boot-fng" class="boot-loading">--</span>] Fear & Greed</div>
+    <div class="boot-line" style="animation-delay:0.9s">  [<span id="boot-sites" class="boot-loading">--</span>] Site monitor</div>
+    <div class="boot-line" style="animation-delay:1.0s">  [<span id="boot-traffic" class="boot-loading">--</span>] Traffic</div>
+    <div class="boot-line" style="animation-delay:1.1s">  [<span id="boot-trending" class="boot-loading">--</span>] Trending</div>
+    <div class="boot-line" style="animation-delay:1.2s">  [<span class="boot-ok">OK</span>] Quote engine</div>
+    <div class="boot-line" style="animation-delay:1.2s" id="boot-status-line">Connecting to APIs...</div>
+    <div class="boot-bar"><div class="boot-bar-fill" id="boot-bar-fill"></div></div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<div class="header">
+    <div class="header-left">
+        <span class="header-title" id="hub-title">RASPI INFO HUB</span>
+        <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+    </div>
+    <div class="header-center" id="header-location">
+        DOLNI BREZANY, CZ &nbsp;|&nbsp; 49.96N 14.46E
+    </div>
+    <div class="header-right">
+        <div class="header-clock" id="header-clock">--:--:--</div>
+        <div class="header-date" id="header-date">--- -- --- ----</div>
+    </div>
+</div>
+
+<!-- ============ 3-COLUMN MAIN ============ -->
+<div class="main">
+
+    <!-- ======== LEFT COLUMN: Markets ======== -->
+    <div class="col col-left">
+
+        <!-- Crypto Panel -->
+        <div class="panel lift" id="panel-crypto">
+            <div class="panel-title">
+                <span class="live-indicator"></span>
+                CRYPTO MARKETS
+            </div>
+            <div id="crypto-content">
+                <div class="loading-text">Connecting to CoinGecko...</div>
+            </div>
+        </div>
+
+        <!-- Stocks Panel -->
+        <div class="panel lift" id="panel-stocks">
+            <div class="panel-title">STOCKS</div>
+            <div id="stocks-content">
+                <div class="loading-text">Fetching market data...</div>
+            </div>
+        </div>
+
+        <!-- Crypto Charts Panel -->
+        <div class="panel lift" id="panel-charts" style="flex:1;">
+            <div class="panel-title">
+                <span id="charts-title">CHARTS — 7D</span>
+                <span id="chart-toggle" class="pill pill-neutral" style="cursor:pointer;margin-left:auto;user-select:none;">7D / 30D / 90D / 180D</span>
+            </div>
+            <div id="charts-content">
+                <div class="loading-text">Waiting for data...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== CENTER COLUMN ======== -->
+    <div class="col col-center">
+
+        <!-- Hero Row: Today + Tomorrow Weather -->
+        <div class="hero-row">
+            <div class="hero-cell" id="hero-weather">
+                <div class="hero-label" id="hero-weather-desc">TODAY</div>
+                <div class="hero-value" id="hero-weather-temp">--</div>
+                <div class="hero-sub" id="hero-weather-sub">loading</div>
+            </div>
+            <div class="hero-cell" id="hero-tomorrow">
+                <div class="hero-label" id="hero-tomorrow-desc">TOMORROW</div>
+                <div class="hero-value" id="hero-tomorrow-temp">--</div>
+                <div class="hero-sub" id="hero-tomorrow-sub">loading</div>
+            </div>
+        </div>
+
+        <!-- Traffic Bar -->
+        <div class="traffic-bar" id="traffic-bar">
+            <div>
+                <div class="traffic-dest" id="traffic-dest">DRIVE TO ---</div>
+            </div>
+            <div class="traffic-time" id="traffic-time">--</div>
+            <div>
+                <div class="traffic-info" id="traffic-info">calculating...</div>
+            </div>
+        </div>
+
+        <!-- News Feed -->
+        <div class="news-container" id="news-container">
+            <div class="panel-title">
+                <span class="live-indicator"></span>
+                NEWS FEED
+            </div>
+            <div id="news-content">
+                <div class="loading-text">Loading feeds...</div>
+            </div>
+        </div>
+
+        <!-- Trending -->
+        <div class="news-container" id="panel-trending">
+            <div class="panel-title">
+                <span class="live-indicator"></span>
+                TRENDING NOW
+                <span id="trending-toggle" class="pill pill-neutral" style="cursor:pointer;margin-left:auto;user-select:none;">CZ / WORLD / US / HN</span>
+            </div>
+            <div id="trending-content">
+                <div class="loading-text">Loading trends...</div>
+            </div>
+        </div>
+
+        <!-- Quote -->
+        <div class="quote-box" id="quote-box">
+            <div class="quote-text" id="quote-text">"..."</div>
+            <div class="quote-author" id="quote-author">&mdash; loading</div>
+        </div>
+    </div>
+
+    <!-- ======== RIGHT COLUMN ======== -->
+    <div class="col col-right">
+
+        <!-- Fear & Greed Panel -->
+        <div class="panel lift" id="panel-fng">
+            <div class="panel-title">FEAR & GREED INDEX</div>
+            <div id="fng-content">
+                <div class="loading-text">Loading index...</div>
+            </div>
+        </div>
+
+        <!-- Site Monitor Panel -->
+        <div class="panel lift" id="panel-sites">
+            <div class="panel-title">
+                <span class="live-indicator"></span>
+                SITE MONITOR
+            </div>
+            <div id="sites-content">
+                <div class="loading-text">Pinging sites...</div>
+            </div>
+        </div>
+
+        <!-- Extended Weather Panel -->
+        <div class="panel lift" id="panel-weather-ext">
+            <div class="panel-title">WEATHER DETAILS</div>
+            <div id="weather-ext-content">
+                <div class="loading-text">Loading weather...</div>
+            </div>
+        </div>
+
+        <!-- 3-Day Forecast Panel -->
+        <div class="panel lift" id="panel-forecast">
+            <div class="panel-title">7-DAY FORECAST</div>
+            <div id="forecast-content">
+                <div class="loading-text">Loading forecast...</div>
+            </div>
+        </div>
+
+        <!-- Forex Rates Panel -->
+        <div class="panel lift" id="panel-forex">
+            <div class="panel-title">FOREX RATES</div>
+            <div id="forex-content">
+                <div class="loading-text">Loading rates...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ BOTTOM BAR ============ -->
+<div class="bottom-bar">
+    <span>NET: <span id="net-status" class="online">ONLINE</span></span>
+    <span id="net-info"></span>
+    <span>SESSION: <span id="session-uptime">0m</span></span>
+    <span id="heap-info"></span>
+    <span class="ts" id="bottom-ts">---</span>
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="js/config.js"></script>
+<script src="js/my-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

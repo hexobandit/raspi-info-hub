@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mockup 04 — Amber Retro</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #0c0800;
+    color: #ffb000;
+    font-family: 'Courier New', monospace;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+}
+/* heavy scanlines + amber glow */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+    z-index: 100;
+}
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    box-shadow: inset 0 0 200px rgba(0,0,0,0.8);
+    pointer-events: none;
+    z-index: 101;
+}
+
+.amber { color: #ffb000; }
+.bright { color: #ffd966; }
+.dim { color: #664400; }
+.danger { color: #ff4400; }
+.ok { color: #ffb000; }
+.header-color { color: #ffd966; }
+
+/* 4-quadrant layout with center dividers */
+.frame {
+    position: absolute;
+    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    border: 2px solid rgba(255,176,0,0.3);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 50px 1fr 1fr 28px;
+}
+
+.title-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 2px solid rgba(255,176,0,0.3);
+    background: rgba(255,176,0,0.03);
+}
+.title-bar .name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffd966;
+    text-shadow: 0 0 10px rgba(255,176,0,0.4);
+}
+.title-bar .clock {
+    font-size: 30px;
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(255,176,0,0.4);
+}
+.title-bar .date { font-size: 12px; color: #996600; }
+
+.quad {
+    padding: 12px 16px;
+    border: 1px solid rgba(255,176,0,0.1);
+    overflow: hidden;
+}
+.quad-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #ffd966;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(255,176,0,0.2);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+.quad-title::before { content: '[ '; }
+.quad-title::after { content: ' ]'; }
+
+.row { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 13px; }
+.label { color: #996600; min-width: 75px; }
+
+/* gauges in amber */
+.gauge { height: 8px; background: rgba(255,176,0,0.08); position: relative; flex: 1; max-width: 160px; }
+.gauge-fill { height: 100%; position: absolute; left: 0; top: 0; }
+
+.ticker { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,176,0,0.05); }
+.ticker-name { min-width: 80px; font-weight: bold; }
+.ticker-price { font-weight: bold; }
+.ticker-up { color: #ffb000; }
+.ticker-down { color: #ff4400; }
+
+.news-item { font-size: 12px; padding: 4px 0; border-bottom: 1px solid rgba(255,176,0,0.05); display:flex; gap:6px; }
+.news-tag { font-size: 10px; font-weight: bold; min-width: 50px; }
+
+.site-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: 12px; }
+.dot-up { color: #ffb000; }
+.dot-down { color: #ff4400; }
+
+.status-bar {
+    grid-column: 1 / -1;
+    background: rgba(255,176,0,0.03);
+    border-top: 2px solid rgba(255,176,0,0.3);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    font-size: 10px;
+    color: #664400;
+    gap: 25px;
+}
+
+.chart-area {
+    height: 45px;
+    position: relative;
+    margin: 4px 0;
+    border: 1px solid rgba(255,176,0,0.1);
+    background: rgba(255,176,0,0.02);
+}
+.chart-area svg { width: 100%; height: 100%; }
+
+.quote-box { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,176,0,0.15); }
+.quote-text { font-size: 13px; font-style: italic; }
+.quote-author { font-size: 11px; color: #996600; margin-top: 2px; }
+
+.sub-section { margin-top: 10px; }
+.sub-title { font-size: 10px; color: #996600; letter-spacing: 2px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="frame">
+    <!-- TITLE BAR -->
+    <div class="title-bar">
+        <div>
+            <span class="name">[ RASPI INFO HUB ]</span>
+            <span class="dim" style="font-size:11px; margin-left:15px;">DOLNI BREZANY, CZ</span>
+        </div>
+        <div style="text-align:right;">
+            <div class="clock">14:32:07</div>
+            <div class="date">MONDAY 16 MARCH 2026</div>
+        </div>
+    </div>
+
+    <!-- Q1: Markets -->
+    <div class="quad">
+        <div class="quad-title">MARKETS</div>
+
+        <div class="sub-title">CRYPTO</div>
+        <div class="ticker">
+            <span class="ticker-name">BTC</span>
+            <span class="ticker-price">$67,421</span>
+            <span class="ticker-up">▲ +2.34%</span>
+        </div>
+        <div class="row" style="font-size:11px;">
+            <span class="dim">EMA12: $65,200</span>
+            <span class="dim">EMA26: $63,800</span>
+            <span class="amber" style="font-weight:bold;">↑ BULL</span>
+            <span class="dim">RSI: 72.3</span>
+            <div class="gauge"><div class="gauge-fill" style="width:72%;background:#ff4400;"></div></div>
+            <span class="danger">OB</span>
+        </div>
+        <div class="chart-area">
+            <svg viewBox="0 0 440 45" preserveAspectRatio="none">
+                <path d="M0,35 20,32 40,36 60,28 80,30 100,22 120,25 140,18 160,22 180,15 200,18 220,12 240,16 260,10 280,14 300,8 320,12 340,7 360,10 380,5 400,9 420,4 440,8" fill="none" stroke="#ffb000" stroke-width="1.5"/>
+            </svg>
+        </div>
+
+        <div class="ticker">
+            <span class="ticker-name">ETH</span>
+            <span class="ticker-price">$3,842</span>
+            <span class="ticker-down">▼ -1.12%</span>
+        </div>
+        <div class="row" style="font-size:11px;">
+            <span class="dim">EMA12: $3,900</span>
+            <span class="dim">EMA26: $3,950</span>
+            <span class="danger" style="font-weight:bold;">↓ BEAR</span>
+            <span class="dim">RSI: 38.1</span>
+            <div class="gauge"><div class="gauge-fill" style="width:38%;background:#ffb000;"></div></div>
+            <span class="dim">OK</span>
+        </div>
+
+        <div class="sub-section">
+            <div class="sub-title">STOCKS</div>
+            <div class="ticker"><span class="ticker-name">S&P 500</span><span class="ticker-price">$5,234</span><span class="ticker-up">▲ +0.41%</span></div>
+            <div class="ticker"><span class="ticker-name">NASDAQ</span><span class="ticker-price">$16,102</span><span class="ticker-down">▼ -0.18%</span></div>
+            <div class="ticker"><span class="ticker-name">AMAZON</span><span class="ticker-price">$186.42</span><span class="ticker-up">▲ +1.23%</span></div>
+        </div>
+
+        <div class="sub-section">
+            <div class="sub-title">FEAR & GREED</div>
+            <div class="row">
+                <span style="font-size:22px; font-weight:bold;">62</span>
+                <span>[GREED]</span>
+                <div class="gauge" style="max-width:250px;"><div class="gauge-fill" style="width:62%;background:#ffb000;"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q2: Weather + Traffic -->
+    <div class="quad">
+        <div class="quad-title">WEATHER</div>
+        <div class="row">
+            <span style="font-size:28px; font-weight:bold;">☀ 18°C</span>
+            <span class="dim" style="font-size:13px;">Feels 16°C — Partly cloudy</span>
+        </div>
+        <div class="row dim" style="font-size:11px;">
+            Wind: 12km/h NW &nbsp; Humidity: 58% &nbsp; UV: 4 &nbsp; Pressure: 1018hPa
+        </div>
+        <div class="row dim" style="font-size:11px;">
+            ☀ Rise: 06:12 &nbsp; Set: 18:04
+        </div>
+        <div class="row" style="font-size:12px; margin-top:4px;">
+            <span class="label">TODAY:</span> ⛅ 8°/18° Partly cloudy
+        </div>
+        <div class="row" style="font-size:12px;">
+            <span class="label">TOMORROW:</span> 🌧 5°/12° Light rain
+        </div>
+
+        <div class="sub-section">
+            <div class="quad-title">TRAFFIC → CHODOV OC</div>
+            <div class="row">
+                <span style="font-size:24px; font-weight:bold;">18 min</span>
+                <span class="dim">10.2 km</span>
+                <span class="amber">✓ Normal</span>
+            </div>
+        </div>
+
+        <div class="sub-section">
+            <div class="quad-title">SITE MONITOR</div>
+            <div class="site-row"><span class="dot-up">●</span> military-aircraft-tracker.com <span style="margin-left:auto;">142ms</span></div>
+            <div class="site-row"><span class="dot-up">●</span> simplemermaid.com <span style="margin-left:auto;">89ms</span></div>
+            <div class="site-row"><span class="dot-up">●</span> udelejzahradu.cz <span style="margin-left:auto;">67ms</span></div>
+            <div class="site-row"><span class="dot-down">✖</span> erikamcgregor.cz <span style="margin-left:auto;" class="danger">DOWN</span></div>
+        </div>
+
+        <div class="quote-box">
+            <div class="quote-text">"You have power over your mind, not outside events. Realize this, and you will find strength."</div>
+            <div class="quote-author">— Marcus Aurelius</div>
+        </div>
+    </div>
+
+    <!-- Q3+Q4: News (full width) -->
+    <div class="quad" style="grid-column: 1 / -1;">
+        <div class="quad-title">NEWS FEED</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0 30px;">
+            <div>
+                <div class="news-item"><span class="news-tag bright">[WORLD]</span> ► Fed signals potential rate adjustment amid cooling inflation data <span class="dim" style="margin-left:auto;white-space:nowrap;">2h ago</span></div>
+                <div class="news-item"><span class="news-tag bright">[WORLD]</span> ► Tech giants rally as AI infrastructure spending exceeds expectations <span class="dim" style="margin-left:auto;white-space:nowrap;">3h ago</span></div>
+                <div class="news-item"><span class="news-tag bright">[WORLD]</span> ► European markets hit record highs on defence spending surge <span class="dim" style="margin-left:auto;white-space:nowrap;">4h ago</span></div>
+                <div class="news-item"><span class="news-tag bright">[WORLD]</span> ► Oil prices drop as OPEC+ signals increased production for Q2 <span class="dim" style="margin-left:auto;white-space:nowrap;">5h ago</span></div>
+                <div class="news-item"><span class="news-tag bright">[WORLD]</span> ► Japan central bank maintains rates amid mixed economic signals <span class="dim" style="margin-left:auto;white-space:nowrap;">6h ago</span></div>
+            </div>
+            <div>
+                <div class="news-item"><span class="news-tag" style="color:#ff6600;">[CZ]</span> ► Praha schvaluje rozsireni metra D — stavba pokracuje dle planu <span class="dim" style="margin-left:auto;white-space:nowrap;">1h ago</span></div>
+                <div class="news-item"><span class="news-tag" style="color:#ff6600;">[CZ]</span> ► Ceska ekonomika roste o 2.1% — nad ocekavanim analytiku <span class="dim" style="margin-left:auto;white-space:nowrap;">3h ago</span></div>
+                <div class="news-item"><span class="news-tag" style="color:#ff6600;">[CZ]</span> ► Skoda Auto oznamuje novy elektromobil pro rok 2027 <span class="dim" style="margin-left:auto;white-space:nowrap;">5h ago</span></div>
+                <div class="news-item"><span class="news-tag" style="color:#ff6600;">[CZ]</span> ► Rekordni navstevnost ceskych hradu a zamku v zimni sezone <span class="dim" style="margin-left:auto;white-space:nowrap;">6h ago</span></div>
+                <div class="news-item"><span class="news-tag" style="color:#ff6600;">[CZ]</span> ► Vlada predstavuje novy plan digitalizace verejne spravy <span class="dim" style="margin-left:auto;white-space:nowrap;">8h ago</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+        <span>NET: <span style="color:#ffb000;">ONLINE</span></span>
+        <span>SESSION: 4h 22m</span>
+        <span>FPS: 60</span>
+        <span>HEAP: 42MB</span>
+        <span style="margin-left:auto;">2026-03-16T14:32:07Z</span>
+    </div>
+</div>
+
+</body>
+</html>

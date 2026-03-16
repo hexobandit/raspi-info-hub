@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RASPI INFO HUB — Mockup Gallery</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #0a0e14;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    padding: 40px;
+}
+h1 { color: #00ffff; font-size: 24px; margin-bottom: 8px; }
+.subtitle { color: #006b1d; font-size: 14px; margin-bottom: 30px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.card {
+    border: 1px solid rgba(0,255,65,0.2);
+    padding: 20px;
+    transition: all 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+}
+.card:hover {
+    border-color: #00ffff;
+    background: rgba(0,255,255,0.03);
+    box-shadow: 0 0 20px rgba(0,255,255,0.1);
+}
+.card h2 { color: #00ffff; font-size: 18px; margin-bottom: 6px; }
+.card .desc { color: #00b330; font-size: 13px; line-height: 1.6; }
+.card .tags { margin-top: 8px; }
+.card .tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 8px;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    margin: 2px 4px 2px 0;
+}
+.instructions {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid rgba(0,255,65,0.1);
+    font-size: 13px;
+    color: #006b1d;
+    line-height: 1.8;
+}
+.instructions code {
+    color: #00ff41;
+    background: rgba(0,255,65,0.05);
+    padding: 2px 6px;
+}
+</style>
+</head>
+<body>
+
+<h1>██ RASPI INFO HUB — MOCKUP GALLERY ██</h1>
+<div class="subtitle">Click a mockup to open it full-size (1920x1080). Scroll if needed, or zoom out browser to see full layout.</div>
+
+<div class="grid">
+    <a href="01-bloomberg.html" class="card">
+        <h2>01 — Bloomberg Terminal</h2>
+        <div class="desc">
+            Dense, information-heavy layout inspired by Bloomberg terminals.
+            Two-column grid with markets on the left, weather/traffic/monitoring
+            on the right, news spanning the bottom.
+        </div>
+        <div class="tags">
+            <span class="tag">2-column</span>
+            <span class="tag">dense</span>
+            <span class="tag">classic</span>
+            <span class="tag">green-on-black</span>
+        </div>
+    </a>
+
+    <a href="02-mission-control.html" class="card">
+        <h2>02 — Mission Control</h2>
+        <div class="desc">
+            Three-column layout with hero numbers in the center.
+            Large BTC price and weather temperature as focal points.
+            Sidebar panels for detail, center for at-a-glance info.
+        </div>
+        <div class="tags">
+            <span class="tag">3-column</span>
+            <span class="tag">hero-numbers</span>
+            <span class="tag">balanced</span>
+            <span class="tag">green-on-black</span>
+        </div>
+    </a>
+
+    <a href="03-hacker-minimal.html" class="card">
+        <h2>03 — Hacker Minimal</h2>
+        <div class="desc">
+            Pure text, no boxes or borders. Everything looks like terminal
+            output. Giant clock, clean spacing, maximum readability from
+            a distance. The most "walking past" friendly.
+        </div>
+        <div class="tags">
+            <span class="tag">pure-text</span>
+            <span class="tag">minimal</span>
+            <span class="tag">large-type</span>
+            <span class="tag">green-on-black</span>
+        </div>
+    </a>
+
+    <a href="04-amber-retro.html" class="card">
+        <h2>04 — Amber Retro</h2>
+        <div class="desc">
+            Amber/orange phosphor color scheme like vintage IBM terminals.
+            Four-quadrant layout with heavy borders. Distinct retro feel
+            that's different from the green-screen look.
+        </div>
+        <div class="tags">
+            <span class="tag">4-quadrant</span>
+            <span class="tag">amber</span>
+            <span class="tag">vintage</span>
+            <span class="tag">heavy-borders</span>
+        </div>
+    </a>
+
+    <a href="05-cyberpunk.html" class="card">
+        <h2>05 — Cyberpunk Neon</h2>
+        <div class="desc">
+            Multi-color neon aesthetic — cyan, pink, green on dark purple.
+            Corner accents, gradient fills, neon glow effects. The most
+            visually striking option. Has an expansion area for future panels.
+        </div>
+        <div class="tags">
+            <span class="tag">multi-color</span>
+            <span class="tag">neon-glow</span>
+            <span class="tag">cyberpunk</span>
+            <span class="tag">expandable</span>
+        </div>
+    </a>
+
+    <a href="06-synthwave.html" class="card">
+        <h2>06 — Synthwave 80s</h2>
+        <div class="desc">
+            Pink/cyan neon on deep purple. Orbitron font for that 80s Outrun feel.
+            Sunset gradient strip, perspective grid floor. Like driving a
+            DeLorean through your data.
+        </div>
+        <div class="tags">
+            <span class="tag">80s-retro</span>
+            <span class="tag">pink-cyan</span>
+            <span class="tag">orbitron-font</span>
+            <span class="tag">gradient-heavy</span>
+        </div>
+    </a>
+
+    <a href="07-tactical.html" class="card">
+        <h2>07 — Tactical HUD</h2>
+        <div class="desc">
+            Military ops center aesthetic. OD green, corner brackets, compass rose
+            with wind direction, solar timeline, 7-day temp bars. Feels like
+            you're commanding a base. "SIGINT Feed" instead of "News".
+        </div>
+        <div class="tags">
+            <span class="tag">military</span>
+            <span class="tag">3-column</span>
+            <span class="tag">compass</span>
+            <span class="tag">OD-green</span>
+        </div>
+    </a>
+
+    <a href="08-frosted-glass.html" class="card">
+        <h2>08 — Frosted Glass</h2>
+        <div class="desc">
+            Modern glassmorphism on a deep purple gradient. Rounded cards with
+            backdrop blur, pill badges for RSI states, Inter + JetBrains Mono fonts.
+            Clean, premium, almost iOS-like. The anti-terminal.
+        </div>
+        <div class="tags">
+            <span class="tag">glassmorphism</span>
+            <span class="tag">modern</span>
+            <span class="tag">rounded</span>
+            <span class="tag">purple-gradient</span>
+        </div>
+    </a>
+
+    <a href="09-red-alert.html" class="card">
+        <h2>09 — Red Alert / DEFCON</h2>
+        <div class="desc">
+            Red-on-black emergency aesthetic. DEFCON indicator that reacts to
+            market signals, alert boxes for overbought/down sites, warning stripes.
+            Dramatic and attention-grabbing. Blinking indicators for down sites.
+        </div>
+        <div class="tags">
+            <span class="tag">red-theme</span>
+            <span class="tag">alerts</span>
+            <span class="tag">DEFCON</span>
+            <span class="tag">dramatic</span>
+        </div>
+    </a>
+
+    <a href="10-newspaper.html" class="card">
+        <h2>10 — Digital Broadsheet</h2>
+        <div class="desc">
+            Light background like a newspaper. Playfair Display serif headlines,
+            article excerpts, category tags. Markets in a sidebar column. The most
+            readable from any distance — and totally unexpected for a Pi dashboard.
+        </div>
+        <div class="tags">
+            <span class="tag">light-theme</span>
+            <span class="tag">serif-fonts</span>
+            <span class="tag">newspaper</span>
+            <span class="tag">4-column</span>
+        </div>
+    </a>
+</div>
+
+<div class="instructions">
+    <strong>How to use:</strong><br>
+    1. Open each mockup to compare layouts<br>
+    2. Pick your favorite (or mix elements from multiple)<br>
+    3. The final dashboard will be pure HTML/CSS/JS — no Canvas, maximum readability<br>
+    4. All content is configurable via <code>hub.config.md</code> — see the config file in the project root<br>
+    <br>
+    <strong>Note:</strong> These are static HTML mockups with hardcoded data — the final version will fetch live data from APIs.
+</div>
+
+</body>
+</html>
