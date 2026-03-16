@@ -305,20 +305,29 @@
 
             if (!priceData || priceData.length < 5) continue;
 
-            // Compute EMA on the visible slice
+            // Compute EMAs on the visible slice
             ema12Data = calcEMA(priceData, Math.min(12, Math.floor(priceData.length / 3)));
             ema26Data = calcEMA(priceData, Math.min(26, Math.floor(priceData.length / 2)));
+            const ema100Data = priceData.length >= 100
+                ? calcEMA(priceData, 100)
+                : (priceData.length >= 50 ? calcEMA(priceData, Math.floor(priceData.length * 0.6)) : []);
 
             const color = d.change24h >= 0 ? '#00ff41' : '#ff3355';
             const W = 800, H = 200;
-            const svg = buildChartWithEMA(priceData, ema12Data, ema26Data, W, H, color);
+            const svg = buildChartWithEMA(priceData, ema12Data, ema26Data, ema100Data, W, H, color);
 
             // EMA values for legend
             const e12val = d.ema12?.length ? formatPrice(d.ema12[d.ema12.length - 1]) : '';
             const e26val = d.ema26?.length ? formatPrice(d.ema26[d.ema26.length - 1]) : '';
-            const legend = e12val ? `<span class="muted" style="font-size:9px;margin-left:8px;">` +
-                `<span style="color:#00cccc;">--- EMA12 ${e12val}</span> &nbsp; ` +
-                `<span style="color:#ff8800;">--- EMA26 ${e26val}</span></span>` : '';
+            const e100val = ema100Data?.length ? formatPrice(ema100Data[ema100Data.length - 1]) : '';
+            let legend = '';
+            if (e12val) {
+                legend = `<span class="muted" style="font-size:9px;margin-left:8px;">` +
+                    `<span style="color:#00cccc;">― EMA12 ${e12val}</span> &nbsp; ` +
+                    `<span style="color:#ff8800;">― EMA26 ${e26val}</span>` +
+                    (e100val ? ` &nbsp; <span style="color:#cc66ff;">― EMA100 ${e100val}</span>` : '') +
+                    `</span>`;
+            }
 
             html += `<div class="chart-label">${d.name}/USD ${rangeLabel} ${legend}</div>
                 <div class="chart-container">${svg}</div>`;
@@ -327,73 +336,41 @@
         setHTML('charts-content', html);
     }
 
-    // Build chart SVG with price line + EMA12 + EMA26 overlays
-    function buildChartWithEMA(priceData, ema12, ema26, width, height, priceColor) {
+    // Build chart SVG with price line + EMA overlays
+    function buildChartWithEMA(priceData, ema12, ema26, ema100, width, height, priceColor) {
         const pricePaths = sparklinePaths(priceData, width, height, 2);
         if (!pricePaths) return '';
 
-        // For EMA lines, we need to align them to the right side of the price data
-        // EMA arrays are shorter than price data (they start after `period` points)
-        let ema12Line = '', ema26Line = '';
+        const min = Math.min(...priceData);
+        const max = Math.max(...priceData);
+        const range = max - min || 1;
+        const padding = 2;
+        const w = width - padding * 2;
+        const h = height - padding * 2;
+        const step = w / (priceData.length - 1);
 
-        if (ema12 && ema12.length > 2) {
-            // Pad front so it aligns with price data end
-            const offset = priceData.length - ema12.length;
-            const aligned = new Array(offset).fill(null).concat(ema12);
-            const filtered = [];
-            const allVals = priceData;
-            const min = Math.min(...allVals);
-            const max = Math.max(...allVals);
-            const range = max - min || 1;
-            const padding = 2;
-            const w = width - padding * 2;
-            const h = height - padding * 2;
-            const step = w / (priceData.length - 1);
-
+        // Helper: build SVG path for an EMA array
+        function emaPath(emaData, color) {
+            if (!emaData || emaData.length < 2) return '';
+            const offset = priceData.length - emaData.length;
             let started = false;
-            for (let i = 0; i < aligned.length; i++) {
-                if (aligned[i] == null) continue;
-                const x = (padding + i * step).toFixed(1);
-                const y = (padding + h - ((aligned[i] - min) / range) * h).toFixed(1);
-                filtered.push((started ? 'L' : 'M') + x + ',' + y);
+            const pts = [];
+            for (let i = 0; i < emaData.length; i++) {
+                const x = (padding + (i + offset) * step).toFixed(1);
+                const y = (padding + h - ((emaData[i] - min) / range) * h).toFixed(1);
+                pts.push((started ? 'L' : 'M') + x + ',' + y);
                 started = true;
             }
-            if (filtered.length > 1) {
-                ema12Line = `<path d="${filtered.join(' ')}" fill="none" stroke="#00cccc" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>`;
-            }
-        }
-
-        if (ema26 && ema26.length > 2) {
-            const offset = priceData.length - ema26.length;
-            const aligned = new Array(offset).fill(null).concat(ema26);
-            const allVals = priceData;
-            const min = Math.min(...allVals);
-            const max = Math.max(...allVals);
-            const range = max - min || 1;
-            const padding = 2;
-            const w = width - padding * 2;
-            const h = height - padding * 2;
-            const step = w / (priceData.length - 1);
-
-            let started = false;
-            const filtered = [];
-            for (let i = 0; i < aligned.length; i++) {
-                if (aligned[i] == null) continue;
-                const x = (padding + i * step).toFixed(1);
-                const y = (padding + h - ((aligned[i] - min) / range) * h).toFixed(1);
-                filtered.push((started ? 'L' : 'M') + x + ',' + y);
-                started = true;
-            }
-            if (filtered.length > 1) {
-                ema26Line = `<path d="${filtered.join(' ')}" fill="none" stroke="#ff8800" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>`;
-            }
+            if (pts.length < 2) return '';
+            return `<path d="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>`;
         }
 
         return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" width="100%" height="100%">
             <path d="${pricePaths.areaPath}" fill="${priceColor}" opacity="0.06"/>
             <path d="${pricePaths.linePath}" fill="none" stroke="${priceColor}" stroke-width="1.5"/>
-            ${ema12Line}
-            ${ema26Line}
+            ${emaPath(ema12, '#00cccc')}
+            ${emaPath(ema26, '#ff8800')}
+            ${emaPath(ema100, '#cc66ff')}
         </svg>`;
     }
 
@@ -856,20 +833,43 @@
             }
         }
 
-        // Fallback: haversine-based estimate
-        const dist = haversine(t.originLat, t.originLon, t.destLat, t.destLon);
-        const hour = new Date().getHours();
-        let multiplier = 1.0;
-        if (hour >= 7 && hour <= 9) multiplier = 1.6;
-        else if (hour >= 16 && hour <= 18) multiplier = 1.5;
-        else if (hour >= 22 || hour <= 5) multiplier = 0.8;
+        // Fallback: smart estimate based on road distance, time of day, day of week
+        // Dolni Brezany → Chodov OC is ~12km by road (vs ~8km straight line)
+        const straightDist = haversine(t.originLat, t.originLon, t.destLat, t.destLon);
+        const roadDist = straightDist * 1.4; // road detour factor
+        const now = new Date();
+        const hour = now.getHours();
+        const min = now.getMinutes();
+        const dayOfWeek = now.getDay(); // 0=Sun
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const timeDecimal = hour + min / 60;
 
-        const baseMinutes = (dist / 40) * 60;
+        // Typical Prague traffic pattern (multiplier on base travel time)
+        let multiplier = 1.0;
+        if (isWeekend) {
+            // Weekends: light traffic, slight bump around noon for shopping
+            if (timeDecimal >= 10 && timeDecimal <= 14) multiplier = 1.15;
+            else if (timeDecimal >= 22 || timeDecimal <= 5) multiplier = 0.8;
+        } else {
+            // Weekday traffic curve (Prague D1/south corridor)
+            if (timeDecimal >= 6.5 && timeDecimal < 7) multiplier = 1.3;
+            else if (timeDecimal >= 7 && timeDecimal < 8) multiplier = 1.7;
+            else if (timeDecimal >= 8 && timeDecimal < 9) multiplier = 1.8; // peak
+            else if (timeDecimal >= 9 && timeDecimal < 10) multiplier = 1.4;
+            else if (timeDecimal >= 15 && timeDecimal < 16) multiplier = 1.3;
+            else if (timeDecimal >= 16 && timeDecimal < 17) multiplier = 1.6;
+            else if (timeDecimal >= 17 && timeDecimal < 18) multiplier = 1.7; // peak
+            else if (timeDecimal >= 18 && timeDecimal < 19) multiplier = 1.4;
+            else if (timeDecimal >= 22 || timeDecimal <= 5) multiplier = 0.75;
+        }
+
+        const baseMinutes = (roadDist / 38) * 60; // 38 km/h avg — suburban Prague + traffic lights
         state.traffic = {
             duration: Math.ceil(baseMinutes * multiplier),
-            distance: dist.toFixed(1),
+            distance: roadDist.toFixed(1),
             estimated: true,
-            rushHour: multiplier > 1.2,
+            rushHour: multiplier >= 1.5,
+            peak: multiplier >= 1.7,
             lastUpdate: Date.now()
         };
         bootStatus('boot-traffic', true);
@@ -887,11 +887,14 @@
         const infoEl = $('traffic-info');
         if (infoEl) {
             let info = d.distance + ' km';
-            if (d.rushHour) {
-                info += ' | RUSH HOUR';
+            if (d.peak) {
+                info += ' | PEAK TRAFFIC';
+                infoEl.className = 'traffic-info traffic-rush';
+            } else if (d.rushHour) {
+                info += ' | Rush hour';
                 infoEl.className = 'traffic-info traffic-rush';
             } else {
-                info += ' | Normal traffic';
+                info += ' | Normal';
                 infoEl.className = 'traffic-info';
             }
             if (d.estimated) info += ' (est.)';

@@ -31,7 +31,7 @@ All APIs are free and require no API keys.
 # Option 1: Just open the file
 open index.html
 
-# Option 2: Serve locally (needed if you want hub.config.md to work)
+# Option 2: Serve locally
 python3 -m http.server 8080
 # then open http://localhost:8080
 ```
@@ -112,26 +112,8 @@ raspi-info-hub/
     my-config.js       # Your overrides (edit this)
     utils.js           # Formatting, math, SVG helpers
     app.js             # Main app -- fetch, render, boot
-  mockups/             # 10 design mockups (static HTML)
-  hub.config.md        # Alternative markdown config (needs server)
+  hub.config.md        # Alternative markdown config (optional)
 ```
-
-## Mockups
-
-The `mockups/` folder contains 10 different design concepts:
-
-01. Bloomberg Terminal
-02. Mission Control (selected)
-03. Hacker Minimal
-04. Amber Retro
-05. Cyberpunk Neon
-06. Synthwave 80s
-07. Tactical HUD
-08. Frosted Glass
-09. Red Alert / DEFCON
-10. Digital Broadsheet
-
-Open `mockups/00-INDEX.html` to browse them.
 
 ## Live Traffic (Optional)
 
