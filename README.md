@@ -4,6 +4,9 @@ A real-time info dashboard designed for a Raspberry Pi with a hallway-mounted di
 
 Dark military-tracker-inspired aesthetic with JetBrains Mono, neon green accents, and Mission Control 3-column layout.
 
+<img width="1676" height="886" alt="image" src="https://github.com/user-attachments/assets/f9f35d71-ea99-4d21-8eea-a8e0e6adbf36" />
+
+
 ## Features
 
 | Panel | Data | API |
