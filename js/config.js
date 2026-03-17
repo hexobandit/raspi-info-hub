@@ -6,19 +6,20 @@
 const CONFIG = {
     // -- Location --
     location: {
-        city: 'Dolni Brezany',
-        country: 'CZ',
-        lat: 49.9625,
-        lon: 14.4594
+        city: 'Your City',
+        country: 'XX',
+        lat: 0,
+        lon: 0
     },
 
     // -- Traffic --
     traffic: {
-        originLat: 49.9625,
-        originLon: 14.4594,
-        destLat: 50.0313,
-        destLon: 14.4942,
-        destName: 'Chodov OC'
+        originLat: 0,
+        originLon: 0,
+        destLat: 0,
+        destLon: 0,
+        destName: 'Destination'
+        // tomtomKey: 'YOUR-TOMTOM-API-KEY'  // get free key at developer.tomtom.com
     },
 
     // -- Markets --
@@ -35,9 +36,7 @@ const CONFIG = {
     sites: [
         'https://military-aircraft-tracker.com',
         'https://simplemermaid.com',
-        'https://udelejzahradu.cz',
-        'https://erikamcgregor.cz',
-        'https://hexobandit.com'
+        'https://your-site.com'
     ],
 
     // -- News --
@@ -64,7 +63,7 @@ const CONFIG = {
         pinger: 60000,      // 1 min
         fear: 600000,       // 10 min
         system: 5000,       // 5 sec
-        traffic: 300000     // 5 min
+        traffic: 120000     // 2 min
     },
 
     // -- Visual --

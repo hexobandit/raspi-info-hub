@@ -19,7 +19,7 @@ CONFIG.traffic.destLat = 50.0313;
 CONFIG.traffic.destLon = 14.4942;
 CONFIG.traffic.destName = 'Chodov OC';
 // Optional: get a free key at developer.tomtom.com for live traffic
-// CONFIG.traffic.tomtomKey = 'your-key-here';
+CONFIG.traffic.tomtomKey = 'u2TpPIbY8FVSMb20QFVFNqsYtdr6w6cw';
 
 // -- Crypto (CoinGecko IDs) --
 CONFIG.crypto = ['bitcoin', 'ethereum'];
@@ -28,7 +28,10 @@ CONFIG.crypto = ['bitcoin', 'ethereum'];
 CONFIG.stocks = [
     { symbol: 'SPY', name: 'S&P 500' },
     { symbol: 'QQQ', name: 'NASDAQ' },
-    { symbol: 'AMZN', name: 'Amazon' }
+    { symbol: 'DIA', name: 'Dow Jones' },
+    { symbol: 'AMZN', name: 'Amazon' },
+    { symbol: 'CRWD', name: 'CrowdStrike' },
+    { symbol: 'NET', name: 'Cloudflare' }
 ];
 
 // -- Sites to Monitor --
@@ -37,7 +40,8 @@ CONFIG.sites = [
     'https://simplemermaid.com',
     'https://udelejzahradu.cz',
     'https://erikamcgregor.cz',
-    'https://hexobandit.com'
+    'https://hexobandit.com',
+    'https://short-ies.com'
 ];
 
 // -- News Feeds (RSS via rss2json.com) --

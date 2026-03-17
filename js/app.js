@@ -275,48 +275,45 @@
     }
 
     function renderCharts() {
-        const rangeLabel = state.chartRange.toUpperCase();
-        setText('charts-title', 'CHARTS — ' + rangeLabel);
+        const d = state.crypto['bitcoin'];
+        if (!d) {
+            setHTML('charts-content', '<div class="loading-text">No chart data yet</div>');
+            return;
+        }
 
+        const color = d.change24h >= 0 ? '#00ff41' : '#ff3355';
+        const W = 800, H = 200;
         let html = '';
-        for (const id of CONFIG.crypto) {
-            const d = state.crypto[id];
-            if (!d) continue;
 
-            // Pick data source based on range
-            let priceData, ema12Data, ema26Data;
-            const rangeDays = parseInt(state.chartRange) || 7;
+        // Two fixed charts: 7D and 90D
+        const ranges = [
+            { label: '7D', days: 7 },
+            { label: '90D', days: 90 }
+        ];
 
-            if (state.chartRange === '7d') {
-                // Use sparkline (hourly, ~168 points) for 7d
+        for (const r of ranges) {
+            let priceData;
+            if (r.days === 7) {
                 priceData = d.sparkline?.slice(-168);
             } else {
-                // Use market_chart prices (daily, ~180 points for 180d)
                 const src = d.prices180d;
-                if (!src || src.length < 10) {
-                    // Fallback to sparkline if no long-term data
-                    priceData = d.sparkline?.slice(-168);
-                } else {
-                    // Slice proportionally: prices180d covers 180 days
-                    const sliceCount = Math.max(20, Math.round(src.length * (rangeDays / 180)));
+                if (src && src.length >= 10) {
+                    const sliceCount = Math.max(20, Math.round(src.length * (r.days / 180)));
                     priceData = src.slice(-sliceCount);
+                } else {
+                    priceData = d.sparkline?.slice(-168);
                 }
             }
-
             if (!priceData || priceData.length < 5) continue;
 
-            // Compute EMAs on the visible slice
-            ema12Data = calcEMA(priceData, Math.min(12, Math.floor(priceData.length / 3)));
-            ema26Data = calcEMA(priceData, Math.min(26, Math.floor(priceData.length / 2)));
+            const ema12Data = calcEMA(priceData, Math.min(12, Math.floor(priceData.length / 3)));
+            const ema26Data = calcEMA(priceData, Math.min(26, Math.floor(priceData.length / 2)));
             const ema100Data = priceData.length >= 100
                 ? calcEMA(priceData, 100)
                 : (priceData.length >= 50 ? calcEMA(priceData, Math.floor(priceData.length * 0.6)) : []);
 
-            const color = d.change24h >= 0 ? '#00ff41' : '#ff3355';
-            const W = 800, H = 200;
             const svg = buildChartWithEMA(priceData, ema12Data, ema26Data, ema100Data, W, H, color);
 
-            // EMA values for legend
             const e12val = d.ema12?.length ? formatPrice(d.ema12[d.ema12.length - 1]) : '';
             const e26val = d.ema26?.length ? formatPrice(d.ema26[d.ema26.length - 1]) : '';
             const e100val = ema100Data?.length ? formatPrice(ema100Data[ema100Data.length - 1]) : '';
@@ -329,9 +326,10 @@
                     `</span>`;
             }
 
-            html += `<div class="chart-label">${d.name}/USD ${rangeLabel} ${legend}</div>
+            html += `<div class="chart-label">BTC/USD ${r.label} ${legend}</div>
                 <div class="chart-container">${svg}</div>`;
         }
+
         if (!html) html = '<div class="loading-text">No chart data yet</div>';
         setHTML('charts-content', html);
     }
@@ -365,12 +363,29 @@
             return `<path d="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>`;
         }
 
+        // Price labels: low, high, current
+        const current = priceData[priceData.length - 1];
+        const yMin = (padding + h).toFixed(1);  // bottom = min price
+        const yMax = (padding).toFixed(1);       // top = max price
+        const yCur = (padding + h - ((current - min) / range) * h).toFixed(1);
+        const fmt = v => v >= 1000 ? '$' + v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '$' + v.toFixed(2);
+        const labelX = width - 4;
+
+        const priceLabels = `
+            <line x1="0" y1="${yMin}" x2="${width}" y2="${yMin}" stroke="#ff335540" stroke-width="0.5" stroke-dasharray="4,3"/>
+            <text x="${labelX}" y="${yMin - 3}" fill="#ff3355" font-size="11" font-family="monospace" text-anchor="end">${fmt(min)}</text>
+            <line x1="0" y1="${yMax}" x2="${width}" y2="${yMax}" stroke="#00ff4140" stroke-width="0.5" stroke-dasharray="4,3"/>
+            <text x="${labelX}" y="${parseFloat(yMax) + 12}" fill="#00ff41" font-size="11" font-family="monospace" text-anchor="end">${fmt(max)}</text>
+            <line x1="0" y1="${yCur}" x2="${width}" y2="${yCur}" stroke="#ffffff30" stroke-width="0.5" stroke-dasharray="2,2"/>
+            <text x="${labelX}" y="${yCur - 3}" fill="#e0f0e0" font-size="11" font-family="monospace" text-anchor="end" font-weight="bold">${fmt(current)}</text>`;
+
         return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" width="100%" height="100%">
             <path d="${pricePaths.areaPath}" fill="${priceColor}" opacity="0.06"/>
             <path d="${pricePaths.linePath}" fill="none" stroke="${priceColor}" stroke-width="1.5"/>
             ${emaPath(ema12, '#00cccc')}
             ${emaPath(ema26, '#ff8800')}
             ${emaPath(ema100, '#cc66ff')}
+            ${priceLabels}
         </svg>`;
     }
 
@@ -379,7 +394,7 @@
     async function fetchStocks() {
         for (const stock of CONFIG.stocks) {
             try {
-                const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(stock.symbol)}?range=5d&interval=1d`;
+                const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(stock.symbol)}?range=3mo&interval=1d`;
                 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
                 const data = await safeFetch(proxyUrl, 15000);
                 if (data?.chart?.result?.[0]) {
@@ -388,12 +403,18 @@
                     const closes = result.indicators?.quote?.[0]?.close?.filter(v => v != null) || [];
                     const price = meta.regularMarketPrice;
                     const prevClose = meta.chartPreviousClose || meta.previousClose;
-                    const change = prevClose ? pctChange(price, prevClose) : 0;
+                    const change1d = prevClose ? pctChange(price, prevClose) : 0;
+
+                    // 30D and 90D changes from historical closes
+                    const change30d = closes.length >= 22 ? pctChange(price, closes[closes.length - 22]) : null;
+                    const change90d = closes.length >= 63 ? pctChange(price, closes[0]) : null;
 
                     state.stocks[stock.symbol] = {
                         name: stock.name,
                         price: price,
-                        change: change,
+                        change: change1d,
+                        change30d: change30d,
+                        change90d: change90d,
                         closes: closes,
                         lastUpdate: Date.now()
                     };
@@ -407,7 +428,13 @@
     }
 
     function renderStocks() {
-        let html = '';
+        let html = `<div class="stock-row" style="border-bottom:1px solid rgba(0,255,65,0.08);padding-bottom:4px;margin-bottom:2px;">
+            <span class="stock-name muted" style="font-size:9px;letter-spacing:1px;"></span>
+            <span class="stock-price muted" style="font-size:9px;letter-spacing:1px;">PRICE</span>
+            <span class="stock-change muted" style="font-size:9px;letter-spacing:1px;">1D</span>
+            <span class="stock-change muted" style="font-size:9px;letter-spacing:1px;">30D</span>
+            <span class="stock-change muted" style="font-size:9px;letter-spacing:1px;">90D</span>
+        </div>`;
         let hasAny = false;
 
         for (const stock of CONFIG.stocks) {
@@ -423,10 +450,14 @@
             hasAny = true;
             const arrow = pctArrow(d.change);
             const colorCls = pctColorClass(d.change);
+            const c30 = d.change30d != null ? `<span class="stock-change ${pctColorClass(d.change30d)}">${pctArrow(d.change30d)} ${pctString(d.change30d)}</span>` : '<span class="stock-change muted">--</span>';
+            const c90 = d.change90d != null ? `<span class="stock-change ${pctColorClass(d.change90d)}">${pctArrow(d.change90d)} ${pctString(d.change90d)}</span>` : '<span class="stock-change muted">--</span>';
             html += `<div class="stock-row">
                 <span class="stock-name">${d.name}</span>
                 <span class="stock-price">${formatPrice(d.price)}</span>
                 <span class="stock-change ${colorCls}">${arrow} ${pctString(d.change)}</span>
+                ${c30}
+                ${c90}
             </div>`;
         }
 
@@ -711,6 +742,20 @@
                 timestamp: d.timestamp * 1000
             };
         }
+
+        // Fetch VIX for stock market fear gauge
+        try {
+            const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?range=1d&interval=1d`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
+            const vixData = await safeFetch(proxyUrl, 10000);
+            if (vixData?.chart?.result?.[0]) {
+                const meta = vixData.chart.result[0].meta;
+                state.vix = { price: meta.regularMarketPrice };
+            }
+        } catch (e) {
+            console.warn('VIX fetch failed:', e);
+        }
+
         bootStatus('boot-fng', !!state.fng);
         renderFNG();
     }
@@ -720,7 +765,6 @@
         const d = state.fng;
         const color = fngColor(d.value);
         const info = fngInfo(d.value, d.label);
-
         setHTML('fng-content', `
             <div class="fng-display">
                 <span class="fng-value" style="color:${color};">${d.value}</span>
@@ -733,8 +777,32 @@
                 <span class="red">EXTREME FEAR</span>
                 <span class="muted">NEUTRAL</span>
                 <span class="orange">EXTREME GREED</span>
+            </div>`);
+
+        renderVIX();
+    }
+
+    function renderVIX() {
+        const vix = state.vix;
+        if (!vix) return;
+        const vixVal = vix.price;
+        const fearPct = Math.min(100, Math.max(0, ((vixVal - 10) / 40) * 100));
+        const vixColor = vixVal >= 30 ? '#ff3355' : vixVal >= 20 ? '#ff8800' : '#00ff41';
+        const vixLabel = vixVal >= 40 ? 'PANIC' : vixVal >= 30 ? 'HIGH FEAR' : vixVal >= 20 ? 'ELEVATED' : vixVal >= 15 ? 'NORMAL' : 'CALM';
+        const vixCls = vixVal >= 30 ? 'pill-fear' : vixVal >= 20 ? 'pill-oversold' : 'pill-greed';
+        setHTML('vix-content', `
+            <div class="fng-display">
+                <span class="fng-value" style="color:${vixColor};">${vixVal.toFixed(1)}</span>
+                <span class="pill ${vixCls}">${vixLabel}</span>
             </div>
-        `);
+            <div class="fng-gauge">
+                <div class="fng-gauge-fill" style="width:${fearPct}%;background:${vixColor};"></div>
+            </div>
+            <div class="fng-scale">
+                <span class="green">CALM</span>
+                <span class="muted">NORMAL</span>
+                <span class="red">PANIC</span>
+            </div>`);
     }
 
     // ── Site Monitor ────────────────────────────────────────
@@ -1096,17 +1164,7 @@
         // Start system bar updates
         updateSystemBar();
 
-        // Chart range toggle: cycle through 7d → 30d → 90d → 180d → 7d
-        const chartRanges = ['7d', '30d', '90d', '180d'];
-        const toggleEl = $('chart-toggle');
-        if (toggleEl) {
-            toggleEl.addEventListener('click', () => {
-                const idx = chartRanges.indexOf(state.chartRange);
-                state.chartRange = chartRanges[(idx + 1) % chartRanges.length];
-                toggleEl.textContent = state.chartRange.toUpperCase();
-                renderCharts();
-            });
-        }
+        // (Chart toggle removed — fixed 7D + 90D dual view)
 
         // Trending source toggle: CZ → US → HN → CZ
         const trendToggle = $('trending-toggle');
