@@ -2,7 +2,8 @@
 
 Real-time dashboard for Raspberry Pi. Pure client-side — no backend, no build tools. Just open `index.html`.
 
-<img width="1676" height="886" alt="image" src="https://github.com/user-attachments/assets/f9f35d71-ea99-4d21-8eea-a8e0e6adbf36" />
+<img width="1675" height="880" alt="image" src="https://github.com/user-attachments/assets/f6e3924d-0899-4fc7-af40-8403089aac17" />
+
 
 ## Panels
 
